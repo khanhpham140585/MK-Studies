@@ -54,7 +54,8 @@ body{
 
 .main-content{
 
-    margin-left: 30px;
+    margin-left: 270px;
+    margin-right: 90px;
 
     padding: 10px;
 
@@ -63,6 +64,16 @@ body{
     justify-content: center;
 
     align-items: flex-start;
+
+    transition: margin 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.left-collapsed .main-content {
+    margin-left: 20px;
+}
+
+body.right-collapsed .main-content {
+    margin-right: 20px;
 }
 
 /* PDF Viewer */
@@ -265,8 +276,7 @@ input[type="range"]{
     left: 0;
     top: 0;
 
-    min-width: 80px;
-    max-width: 140px;
+    width: 260px;
     height: 100vh;
 
     display: flex;
@@ -283,6 +293,15 @@ input[type="range"]{
     overflow-y: auto;
 
     z-index: 1000;
+
+    box-sizing: border-box;
+
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.06);
+}
+
+.toolbar-left.collapsed {
+    transform: translateX(-100%);
 }
 
 .toolbar-right {
@@ -309,6 +328,204 @@ input[type="range"]{
     overflow-y: auto;
 
     z-index: 1000;
+
+    box-sizing: border-box;
+
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -2px 0 10px rgba(0,0,0,0.06);
+}
+
+.toolbar-right.collapsed {
+    transform: translateX(100%);
+}
+
+.toolbar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 0 6px 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 4px;
+}
+
+.toolbar-title {
+    font-weight: bold;
+    font-size: 15px;
+    color: #333;
+    display: flex;
+    align-items: center;
+}
+
+.toolbar-header-right {
+    justify-content: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 6px;
+    margin-bottom: 4px;
+}
+
+.icon-btn-sm {
+    min-width: 32px !important;
+    min-height: 32px !important;
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #f8f9fa;
+    color: #555;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.icon-btn-sm:hover {
+    background: #e9ecef;
+    color: #1976d2;
+    border-color: #1976d2;
+}
+
+.icon-btn-sm .lucide {
+    width: 18px;
+    height: 18px;
+}
+
+.toggle-tab-left, .toggle-tab-right {
+    position: fixed;
+    top: 15px;
+    z-index: 1050;
+    background: #1976d2;
+    color: white;
+    border: none;
+    width: 38px;
+    height: 44px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    transition: background 0.2s, transform 0.2s;
+}
+
+.toggle-tab-left {
+    left: 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.toggle-tab-right {
+    right: 0;
+    border-radius: 8px 0 0 8px;
+}
+
+.toggle-tab-left:hover, .toggle-tab-right:hover {
+    background: #1565c0;
+    transform: scale(1.05);
+}
+
+.toggle-tab-left .lucide, .toggle-tab-right .lucide {
+    width: 22px;
+    height: 22px;
+}
+
+body.left-collapsed .toggle-tab-left {
+    display: flex;
+}
+
+body.right-collapsed .toggle-tab-right {
+    display: flex;
+}
+
+/* Thanh điều khiển nổi với nền trong suốt (Glassmorphism) */
+.floating-bar {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1040;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    opacity: 0.88;
+    transition: opacity 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    user-select: none;
+}
+
+.floating-bar:hover {
+    opacity: 1;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+}
+
+.floating-top {
+    top: 14px;
+}
+
+.floating-bottom {
+    bottom: 18px;
+}
+
+.float-btn {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.18s ease;
+}
+
+.float-btn:hover {
+    background: #1976d2;
+    color: white;
+    border-color: #1976d2;
+    transform: scale(1.08);
+}
+
+.float-btn:active {
+    transform: scale(0.95);
+}
+
+.float-btn .lucide {
+    width: 20px;
+    height: 20px;
+}
+
+.float-zoom-label {
+    min-width: 52px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.float-zoom-label:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: #1976d2;
+}
+
+.float-page-info {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+    padding: 0 8px;
+    white-space: nowrap;
 }
 
 .color-palette {
@@ -367,7 +584,8 @@ input[type="range"]{
 
 #pdfTree {
 
-    width: 250px;
+    width: 100%;
+    max-height: 38vh;
 
     overflow-y: auto;
 
@@ -414,7 +632,28 @@ input[type="range"]{
 </head>
 <body>
 
+<!-- Nút tab nổi mở lại toolbar khi đã thu gọn -->
+<button id="openLeftBtn" class="toggle-tab-left" title="Mở thanh học liệu (Phím [)"><i data-lucide="panel-left-open"></i></button>
+<button id="openRightBtn" class="toggle-tab-right" title="Mở thanh công cụ vẽ (Phím ])"><i data-lucide="panel-right-open"></i></button>
+
+<!-- Floating Top Center: Zoom Bar (Nền trong suốt) -->
+<div id="floatingZoomBar" class="floating-bar floating-top">
+    <button id="floatZoomOutBtn" class="float-btn" title="Thu nhỏ (Zoom Out)">
+        <i data-lucide="zoom-out"></i>
+    </button>
+    <div id="floatZoomValue" class="float-zoom-label" title="Nhấp để đặt lại 100%">
+        100%
+    </div>
+    <button id="floatZoomInBtn" class="float-btn" title="Phóng to (Zoom In)">
+        <i data-lucide="zoom-in"></i>
+    </button>
+</div>
+
 <div class="toolbar-left">
+    <div class="toolbar-header">
+        <span class="toolbar-title"><i data-lucide="library" class="tree-icon"></i> Học liệu</span>
+        <button id="closeLeftBtn" class="icon-btn-sm" title="Thu gọn thanh trái (Phím [)"><i data-lucide="panel-left-close"></i></button>
+    </div>
      <input style="visibility: hidden;" type="file"
            id="pdfFile"
            accept=".pdf">
@@ -489,6 +728,9 @@ input[type="range"]{
 </div>
 
 <div class="toolbar-right">
+    <div class="toolbar-header toolbar-header-right">
+        <button id="closeRightBtn" class="icon-btn-sm" title="Thu gọn thanh phải (Phím ])"><i data-lucide="panel-right-close"></i></button>
+    </div>
      <button id="rotateBtn" title="Xoay trang"><i data-lucide="rotate-cw"></i></button>
 
     <button id="undoBtn" title="Hoàn tác"><i data-lucide="undo-2"></i></button>
@@ -564,13 +806,17 @@ input[type="range"]{
 
 </div>
 
-<div class="page-info">
-    Trang
-    <span id="pageNum">0</span>
-    /
-    <span id="pageCount">0</span>
-    <!-- <button id="prevBtn">◀Prev</button>
-    <button id="nextBtn">▶Next</button> -->
+<!-- Floating Bottom Center: Page Navigation Bar (Nền trong suốt) -->
+<div id="floatingPageBar" class="floating-bar floating-bottom">
+    <button id="floatPrevBtn" class="float-btn" title="Trang trước (Prev Page)">
+        <i data-lucide="chevron-left"></i>
+    </button>
+    <div class="float-page-info">
+        Trang <span id="pageNum">0</span> / <span id="pageCount">0</span>
+    </div>
+    <button id="floatNextBtn" class="float-btn" title="Trang sau (Next Page)">
+        <i data-lucide="chevron-right"></i>
+    </button>
 </div>
 <script>
 const colors = [
@@ -1171,13 +1417,28 @@ zoomOutBtn.onclick = () => {
 
 function updateZoomLabel() {
 
-    document.getElementById(
-        "zoomValue"
-    ).textContent =
-        Math.round(
-            zoomLevel * 100
-        ) + "%";
+    const text = Math.round(zoomLevel * 100) + "%";
+    const el1 = document.getElementById("zoomValue");
+    const el2 = document.getElementById("floatZoomValue");
+    if (el1) el1.textContent = text;
+    if (el2) el2.textContent = text;
 }
+
+const floatZoomInBtn = document.getElementById("floatZoomInBtn");
+const floatZoomOutBtn = document.getElementById("floatZoomOutBtn");
+const floatZoomValue = document.getElementById("floatZoomValue");
+const floatPrevBtn = document.getElementById("floatPrevBtn");
+const floatNextBtn = document.getElementById("floatNextBtn");
+
+if (floatZoomInBtn) floatZoomInBtn.onclick = () => zoomInBtn.onclick();
+if (floatZoomOutBtn) floatZoomOutBtn.onclick = () => zoomOutBtn.onclick();
+if (floatZoomValue) floatZoomValue.onclick = () => {
+    zoomLevel = 1;
+    updateZoomLabel();
+    renderPage(currentPage);
+};
+if (floatPrevBtn) floatPrevBtn.onclick = () => prevBtn.onclick();
+if (floatNextBtn) floatNextBtn.onclick = () => nextBtn.onclick();
 
 
 function saveDrawing(){
@@ -1573,6 +1834,56 @@ drawCanvas.addEventListener(
     drawCanvas.toDataURL();
 });
 
+function toggleLeftToolbar() {
+    const leftBar = document.querySelector(".toolbar-left");
+    const isCollapsed = leftBar.classList.toggle("collapsed");
+    document.body.classList.toggle("left-collapsed", isCollapsed);
+    localStorage.setItem("readpdf_left_collapsed", isCollapsed ? "true" : "false");
+    setTimeout(() => {
+        if (pdfDoc) renderPage(currentPage);
+    }, 320);
+}
+
+function toggleRightToolbar() {
+    const rightBar = document.querySelector(".toolbar-right");
+    const isCollapsed = rightBar.classList.toggle("collapsed");
+    document.body.classList.toggle("right-collapsed", isCollapsed);
+    localStorage.setItem("readpdf_right_collapsed", isCollapsed ? "true" : "false");
+    setTimeout(() => {
+        if (pdfDoc) renderPage(currentPage);
+    }, 320);
+}
+
+function initToolbarToggles() {
+    const leftCollapsed = localStorage.getItem("readpdf_left_collapsed") === "true";
+    const rightCollapsed = localStorage.getItem("readpdf_right_collapsed") === "true";
+    
+    // Tự động thu gọn thanh trái nếu màn hình nhỏ (iPad portrait / mobile)
+    const autoCollapseMobile = window.innerWidth < 768;
+    
+    if (leftCollapsed || autoCollapseMobile) {
+        document.querySelector(".toolbar-left").classList.add("collapsed");
+        document.body.classList.add("left-collapsed");
+    }
+    if (rightCollapsed) {
+        document.querySelector(".toolbar-right").classList.add("collapsed");
+        document.body.classList.add("right-collapsed");
+    }
+
+    document.getElementById("closeLeftBtn").addEventListener("click", toggleLeftToolbar);
+    document.getElementById("openLeftBtn").addEventListener("click", toggleLeftToolbar);
+    document.getElementById("closeRightBtn").addEventListener("click", toggleRightToolbar);
+    document.getElementById("openRightBtn").addEventListener("click", toggleRightToolbar);
+
+    // Phím tắt '[' và ']'
+    document.addEventListener("keydown", (e) => {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
+        if (e.key === "[") toggleLeftToolbar();
+        if (e.key === "]") toggleRightToolbar();
+    });
+}
+
+initToolbarToggles();
 updateBrush();
 
 if (window.lucide) {
