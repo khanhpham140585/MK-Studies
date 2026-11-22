@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+data/pdfs
+data.zip
+.git
+.gitignore
+.venv
+.vscode
+.codegraph
+dist
+*.md
+!README.md
+

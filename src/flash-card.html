@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Vocabulary Flashcard</title>
+<script src="/js/lucide.min.js"></script>
+
+<style>
+.lucide {
+    width: 20px;
+    height: 20px;
+    vertical-align: -3px;
+    stroke-width: 2;
+    margin-right: 4px;
+}
+body{
+    font-family:Arial,sans-serif;
+    background:#f4f6f8;
+    text-align:center;
+    padding:20px;
+}
+
+.container{
+    max-width:800px;
+    margin:auto;
+}
+
+select,
+input,
+button{
+    padding:10px;
+    font-size:16px;
+}
+
+button{
+    cursor:pointer;
+}
+
+.highlight-word {
+    background: #fff3cd;
+    color: #d35400;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+.card{
+    background:white;
+    border-radius:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.1);
+    min-height:350px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    margin-top:20px;
+}
+
+.flash-content{
+    font-size:200px;
+    transition:all .3s;
+}
+
+.word{
+    font-size:72px;
+    font-weight:bold;
+    color:#2c3e50;
+}
+
+.status{
+    margin-top:20px;
+    font-size:18px;
+    color:#666;
+}
+
+.progress{
+    margin-top:10px;
+}
+
+.active-start {
+    color: red;
+    font-weight: bold;
+}
+
+.active-stop {
+    color: black;
+    font-weight: bold;
+}
+
+.emoji {
+    text-align: center;
+    font-size: 120px;
+}
+
+.vocabulary {
+    text-align: center;
+    font-size: 70px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-top: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1><i data-lucide="book-open"></i> Flashcard Trainer</h1>
+
+<div class="controls">
+    <button class="menuButton" onclick="window.location.href = '/study-english'">
+             <i data-lucide="arrow-left"></i> Back
+        </button>
+    <select class="controls" id="categorySelect"></select>
+
+    <input
+        type="number"
+        id="wordCount"
+        min="1"
+        value="10"
+        placeholder="Words" style="width:70px">
+
+    <button id="startBtn">
+        <i data-lucide="play"></i> Start
+    </button>
+
+    <button id="stopBtn">
+        <i data-lucide="square"></i> Stop
+    </button>
+
+    <button id="speakBtn">
+        <i data-lucide="volume-2"></i> ON
+    </button>
+</div>
+
+<div class="card">
+
+    <div id="flashContent"
+         class="flash-content">
+         ▶
+    </div>
+
+</div>
+
+<div class="status" style="display:none;" id="status">
+    Ready
+</div>
+
+<div class="progress" style="display:none;"  id="progress">
+</div>
+
+</div>
+
+<script>
+let speakEnabled = true;
+let vocabularyData=[];
+
+let flashWords=[];
+
+let currentIndex=0;
+
+let running=false;
+
+let timer=null;
+
+const categorySelect =
+    document.getElementById("categorySelect");
+
+categorySelect.addEventListener(
+    "change",
+    (e) => {
+            const category = e.target.value;
+            location.hash = encodeURIComponent(category);
+            
+             document.getElementById(
+                "flashContent"
+            ).innerHTML=
+            `▶`;
+
+            loadData(category);
+        }
+);
+
+document
+.getElementById("speakBtn")
+.addEventListener(
+    "click",
+    toggleSpeak
+);
+
+function toggleSpeak() {
+
+    speakEnabled = !speakEnabled;
+
+    const btn =
+        document.getElementById(
+            "speakBtn"
+        );
+
+    if (speakEnabled) {
+
+        btn.innerHTML =
+            '<i data-lucide="volume-2"></i> ON';
+
+        btn.style.color =
+            "green";
+
+    } else {
+
+        btn.innerHTML =
+            '<i data-lucide="volume-x"></i> OFF';
+
+        btn.style.color =
+            "red";
+
+        speechSynthesis.cancel();
+    }
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+}
+
+function updateButtonState(isRunning) {
+
+    const startBtn =
+        document.getElementById("startBtn");
+
+    const stopBtn =
+        document.getElementById("stopBtn");
+
+    if (isRunning) {
+
+        startBtn.classList.add(
+            "active-start"
+        );
+
+        stopBtn.classList.remove(
+            "active-stop"
+        );
+
+    } else {
+
+        stopBtn.classList.add(
+            "active-stop"
+        );
+
+        startBtn.classList.remove(
+            "active-start"
+        );
+    }
+}
+
+async function loadData(category){
+
+   try {
+        const response =
+            await fetch(`/data/english/english-${category}.json`);
+
+        if (!response.ok) {
+            throw new Error("Không đọc được vocabulary.json");
+        }
+        currentIndex = 0;
+
+        filteredWords = await response.json();
+
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("content").style.display = "block";
+
+        renderWord();
+
+    } catch (error) {
+
+        document.getElementById("loading").innerHTML =
+            "❌ Không tải được file vocabulary.json";
+
+        console.error(error);
+    }
+}
+
+function initCategories(){
+
+   const categories =
+        ["alphabet", "family", "numbers", "food", "animals", "vehicle", "nature", "body", "clothes", "toy","jobs_places_feelings","school","basic_verbs","basic-adj"];
+    
+    const categoriesEmoji =
+        ["🔠", "👨‍👩‍👧‍👦", "🔢", "🍔", "🐶", "🚗", "🌳", "👤", "👕", "🧸","💼","🏫","🏃🏻‍♂️","🤪"];
+
+    categorySelect.innerHTML = "";
+
+    categories.forEach(category => {
+
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = categoriesEmoji[categories.indexOf(category)] + " " + category.toUpperCase();
+
+        categorySelect.appendChild(option);
+    });
+
+        // đọc category từ URL
+    let categoryFromHash = decodeURIComponent(
+        location.hash.replace("#", "")
+    );
+
+    let selectedCategory = categories[0];
+
+    if (
+        categoryFromHash &&
+        categories.includes(categoryFromHash)
+    ) {
+        selectedCategory = categoryFromHash;
+    }
+
+    categorySelect.value = selectedCategory;
+
+    loadData(selectedCategory);
+}
+
+function shuffle(array){
+
+    const arr=[...array];
+
+    for(
+        let i=arr.length-1;
+        i>0;
+        i--
+    ){
+
+        const j=
+            Math.floor(
+                Math.random()*(i+1)
+            );
+
+        [arr[i],arr[j]]=
+            [arr[j],arr[i]];
+    }
+
+    return arr;
+}
+
+function isIOS(){
+
+    return /iPad|iPhone|iPod/.test(
+        navigator.userAgent
+    )
+    ||
+    (
+        navigator.platform==="MacIntel"
+        &&
+        navigator.maxTouchPoints>1
+    );
+}
+
+function speak(text){
+
+    if (!speakEnabled) return;
+
+    if (!window.speechSynthesis) return;
+
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(" " + text);
+
+    // Ưu tiên UK
+    utterance.lang = "en-GB";
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+
+    const voices = speechSynthesis.getVoices();
+
+    const ukVoice =
+        voices.find(v =>
+            v.lang === "en-GB" 
+            &&
+            (
+                v.name.includes("Daniel") ||
+                v.name.includes("Serena") ||
+                v.name.includes("Arthur") ||
+                v.name.includes("British")
+            )
+        )
+        ||
+        voices.find(v => v.lang === "en-GB");
+
+    if (ukVoice) {
+        utterance.voice = ukVoice;
+    }
+
+    speechSynthesis.speak(utterance);
+}
+
+async function startFlash(){
+    
+    stopFlash();
+
+    const category=
+        document.getElementById(
+            "categorySelect"
+        ).value;
+
+    const count=
+        parseInt(
+            document.getElementById(
+                "wordCount"
+            ).value
+        );
+
+    flashWords=
+        filteredWords;
+
+    flashWords=
+        shuffle(flashWords)
+            .slice(0,count);
+
+    if(
+        flashWords.length===0
+    ){
+        alert(
+            "No words found"
+        );
+        return;
+    }
+
+    currentIndex=0;
+
+    running=true;
+updateButtonState(true);
+    showNextCard();
+}
+
+function stopFlash(){
+
+    running=false;
+
+    clearTimeout(timer);
+    updateButtonState(false);
+
+    speechSynthesis.cancel();
+
+    document.getElementById(
+        "status"
+    ).innerHTML="Stopped";
+}
+
+async function showNextCard(){
+
+    if(!running)
+        return;
+
+    if(
+        currentIndex>=
+        flashWords.length
+    ){
+
+        document.getElementById(
+            "status"
+        ).innerHTML=
+            "✅ Completed";
+
+        running=false;
+        updateButtonState(false);
+        return;
+    }
+
+    const word=
+        flashWords[
+            currentIndex
+        ];
+
+    document.getElementById(
+        "flashContent"
+    ).innerHTML=`
+         <div class="emoji" id="emoji">${ word.emoji}</div>
+         <div class="vocabulary" id="vocabulary"
+                 title="Bấm để nghe phát âm">${ capitalizeFirst(word.vocabulary)}</div>`;
+
+
+    document.getElementById(
+        "progress"
+    ).innerHTML=
+        `${currentIndex+1}
+        /
+        ${flashWords.length}`;
+
+    // 2 giây hiện emoji
+
+    timer=setTimeout(()=>{
+
+        document.getElementById(
+            "flashContent"
+        ).innerHTML=
+            `<div class="word">
+                ${
+                    highlightWord(
+                            word.example,
+                            word.vocabulary
+                        )
+                }
+             </div>`;
+
+        speak(
+            word.example
+        );
+
+        // 1 giây hiện từ
+
+        timer=setTimeout(()=>{
+
+            currentIndex++;
+
+            showNextCard();
+
+        },2000);
+
+    },3000);
+}
+
+function capitalizeFirst(text) {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function highlightWord(sentence, word) {
+
+    if (!sentence || !word) return sentence;
+
+    const escaped =
+        word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const regex =
+        new RegExp(`\\b(${escaped})\\b`, 'gi');
+
+    return sentence.replace(
+        regex,
+        '<span class="highlight-word">$1</span>'
+    );
+}
+function capitalize(text){
+
+    if(!text)
+        return "";
+
+    return (
+        text.charAt(0)
+        .toUpperCase()
+        +
+        text.slice(1)
+    );
+}
+
+document
+.getElementById(
+    "startBtn"
+)
+.addEventListener(
+    "click",
+    startFlash
+);
+
+document
+.getElementById(
+    "stopBtn"
+)
+.addEventListener(
+    "click",
+    stopFlash
+);
+
+initCategories();
+
+if (window.lucide) {
+    lucide.createIcons();
+}
+
+</script>
+
+</body>
+</html>

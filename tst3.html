@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Montessori Math Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 10px;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .screen {
+            padding: 30px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-screen {
+            text-align: center;
+        }
+
+        .main-screen h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+        }
+
+        .btn {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            color: white;
+            cursor: pointer;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .game-screen {
+            display: none;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .operation {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .unit {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .bar {
+            height: 60px;
+            background: #ffcc5c;
+            border-radius: 10px;
+            margin: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            min-width: 60px;
+        }
+
+        .unit-block {
+            width: 40px;
+            height: 40px;
+            background: #4facfe;
+            border-radius: 5px;
+            margin: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .ten-block {
+            width: 60px;
+            height: 60px;
+            background: #ffcc5c;
+            border-radius: 10px;
+            margin: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .drag-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+            min-height: 150px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px dashed #ddd;
+        }
+
+        .drag-item {
+            width: 40px;
+            height: 40px;
+            background: #4facfe;
+            border-radius: 5px;
+            margin: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: grab;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .drag-item:active {
+            cursor: grabbing;
+        }
+
+        .drop-area {
+            width: 80px;
+            height: 80px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+            border: 2px dashed #ccc;
+        }
+
+        .result {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #ff6b6b;
+        }
+
+        .feedback {
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .level-up {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .completion-screen h2 {
+            font-size: 2rem;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+        }
+
+        .completion-screen p {
+            font-size: 1.2rem;
+            margin: 15px 0;
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .star {
+            color: gold;
+            font-size: 2rem;
+            margin: 0 5px;
+        }
+
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin: 8px 0;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .btn {
+                padding: 12px 30px;
+                font-size: 1.1rem;
+            }
+
+            .unit-block {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
+
+            .ten-block {
+                width: 50px;
+                height: 50px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Montessori Math Adventure</h1>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="score">0</div>
+                    <div class="stat-label">Điểm</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="level">1</div>
+                    <div class="stat-label">Cấp độ</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="medals">0</div>
+                    <div class="stat-label">Huy hiệu</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="screen main-screen" id="mainScreen">
+            <h2>Trò chơi học toán Montessori</h2>
+            <p>Học cộng qua 10 và trừ có mượn bằng cách thao tác trực quan</p>
+
+            <div class="instructions">
+                <h3>Cách chơi:</h3>
+                <ul>
+                    <li>Trẻ học cộng qua 10 bằng cách gộp chục tự động</li>
+                    <li>Trẻ học trừ có mượn bằng cách thao tác trực quan</li>
+                    <li>Kéo các khối đơn vị để tạo thành chục</li>
+                    <li>Giải quyết các bài toán trong thời gian giới hạn</li>
+                </ul>
+            </div>
+
+            <button class="btn" id="startBtn">Bắt đầu chơi</button>
+        </div>
+
+        <div class="screen game-screen" id="gameScreen">
+            <div class="game-header">
+                <div class="operation" id="operation"></div>
+                <div class="level" id="currentLevel">Cấp độ: 1</div>
+            </div>
+
+            <div class="unit" id="unitDisplay"></div>
+
+            <div class="drag-container" id="dragContainer">
+                <!-- Drag items will be inserted here -->
+            </div>
+
+            <div class="drop-area" id="dropArea">Kéo vào đây</div>
+
+            <div class="result" id="result">= ?</div>
+
+            <div class="feedback" id="feedback"></div>
+
+            <button class="btn" id="nextBtn">Bài tiếp theo</button>
+        </div>
+
+        <div class="screen completion-screen" id="completionScreen">
+            <h2>Hoàn thành cấp độ!</h2>
+            <p>Bạn đã hoàn thành cấp độ 1 của trò chơi</p>
+            <div class="stars">
+                <div class="star">★</div>
+                <div class="star">★</div>
+                <div class="star">★</div>
+            </div>
+            <p>Nhấn nút bên dưới để tiếp tục</p>
+            <button class="btn" id="continueBtn">Tiếp tục</button>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let score = 0;
+        let level = 1;
+        let medals = 0;
+        let currentOperation = '';
+        let correctAnswer = 0;
+        let gameActive = false;
+
+        // DOM elements
+        const mainScreen = document.getElementById('mainScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const completionScreen = document.getElementById('completionScreen');
+        const startBtn = document.getElementById('startBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const continueBtn = document.getElementById('continueBtn');
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const medalsElement = document.getElementById('medals');
+        const operationElement = document.getElementById('operation');
+        const unitDisplay = document.getElementById('unitDisplay');
+        const dragContainer = document.getElementById('dragContainer');
+        const dropArea = document.getElementById('dropArea');
+        const resultElement = document.getElementById('result');
+        const feedbackElement = document.getElementById('feedback');
+
+        // Initialize game
+        function initGame() {
+            updateStats();
+            startBtn.addEventListener('click', startGame);
+            nextBtn.addEventListener('click', generateNewProblem);
+            continueBtn.addEventListener('click', () => {
+                completionScreen.style.display = 'none';
+                gameScreen.style.display = 'flex';
+                generateNewProblem();
+            });
+        }
+
+        // Start the game
+        function startGame() {
+            mainScreen.style.display = 'none';
+            gameScreen.style.display = 'flex';
+            generateNewProblem();
+        }
+
+        // Generate a new math problem
+        function generateNewProblem() {
+            gameActive = true;
+            feedbackElement.textContent = '';
+            feedbackElement.className = 'feedback';
+
+            // Reset drag container
+            dragContainer.innerHTML = '';
+
+            // Generate operation (addition or subtraction)
+            const operations = ['+', '-'];
+            currentOperation = operations[Math.floor(Math.random() * operations.length)];
+
+            let num1, num2;
+
+            if (currentOperation === '+') {
+                // Addition: numbers that require carrying
+                num1 = Math.floor(Math.random() * 8) + 3; // 3-10
+                num2 = 10 - (num1 % 10); // Ensures carry over
+                correctAnswer = num1 + num2;
+            } else {
+                // Subtraction: numbers that require borrowing
+                num1 = Math.floor(Math.random() * 7) + 6; // 6-12
+                num2 = Math.floor(Math.random() * (num1 - 5)) + 2; // 2 to (num1-5)
+                correctAnswer = num1 - num2;
+            }
+
+            operationElement.textContent = `${num1} ${currentOperation} ${num2}`;
+            resultElement.textContent = `= ?`;
+
+            // Display the first number
+            displayNumber(num1, 'first');
+
+            // Create drag items for second number
+            createDragItems(num2);
+        }
+
+        // Display a number using visual blocks
+        function displayNumber(number, type) {
+            unitDisplay.innerHTML = '';
+
+            if (type === 'first') {
+                const tens = Math.floor(number / 10);
+                const units = number % 10;
+
+                for (let i = 0; i < tens; i++) {
+                    const tenBlock = document.createElement('div');
+                    tenBlock.className = 'ten-block';
+                    tenBlock.textContent = '10';
+                    unitDisplay.appendChild(tenBlock);
+                }
+
+                for (let i = 0; i < units; i++) {
+                    const unitBlock = document.createElement('div');
+                    unitBlock.className = 'unit-block';
+                    unitBlock.textContent = '1';
+                    unitDisplay.appendChild(unitBlock);
+                }
+            } else {
+                // Display second number
+                for (let i = 0; i < number; i++) {
+                    const unitBlock = document.createElement('div');
+                    unitBlock.className = 'unit-block';
+                    unitBlock.textContent = '1';
+                    unitDisplay.appendChild(unitBlock);
+                }
+            }
+        }
+
+        // Create drag items for the second number
+        function createDragItems(count) {
+            for (let i = 0; i < count; i++) {
+                const dragItem = document.createElement('div');
+                dragItem.className = 'drag-item';
+                dragItem.textContent = '1';
+                dragItem.draggable = true;
+
+                // Add drag events
+                dragItem.addEventListener('dragstart', handleDragStart);
+                dragItem.addEventListener('dragend', handleDragEnd);
+
+                dragContainer.appendChild(dragItem);
+            }
+        }
+
+        // Drag and drop functionality
+        let draggedItem = null;
+
+        function handleDragStart(e) {
+            draggedItem = this;
+            setTimeout(() => this.classList.add('dragging'), 0);
+        }
+
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+            draggedItem = null;
+        }
+
+        // Set up drag and drop
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedItem && gameActive) {
+                // Check if it's a valid drop
+                const dropCount = parseInt(draggedItem.textContent);
+                if (dropCount === 1) {
+                    // Move the dragged item to the drop area
+                    dragContainer.removeChild(draggedItem);
+                    dropArea.innerHTML = '';
+                    dropArea.appendChild(draggedItem);
+
+                    // Check if we can form a ten block
+                    const itemsInDrop = dropArea.querySelectorAll('.drag-item');
+                    if (itemsInDrop.length === 10) {
+                        // Form a ten block
+                        dropArea.innerHTML = '';
+                        const tenBlock = document.createElement('div');
+                        tenBlock.className = 'ten-block';
+                        tenBlock.textContent = '10';
+                        dropArea.appendChild(tenBlock);
+
+                        // Add to score
+                        score += 10;
+                        updateStats();
+                    }
+
+                    // Check if all items are moved
+                    const remainingItems = dragContainer.querySelectorAll('.drag-item');
+                    if (remainingItems.length === 0) {
+                        gameActive = false;
+                        feedbackElement.textContent = 'Chúc mừng! Bạn đã hoàn thành!';
+                        feedbackElement.className = 'feedback success';
+
+                        // Update score
+                        score += 10;
+                        updateStats();
+
+                        // Check level up
+                        if (score >= level * 50) {
+                            level++;
+                            medals++;
+                            updateStats();
+                            feedbackElement.textContent = `Chúc mừng! Bạn đã lên cấp độ ${level}!`;
+                            feedbackElement.className = 'feedback success level-up';
+
+                            setTimeout(() => {
+                                completionScreen.style.display = 'flex';
+                                gameScreen.style.display = 'none';
+                            }, 2000);
+                        }
+                    }
+                }
+            }
+        });
+
+        // Update stats display
+        function updateStats() {
+            scoreElement.textContent = score;
+            levelElement.textContent = level;
+            medalsElement.textContent = medals;
+        }
+
+        // Initialize the game when page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>

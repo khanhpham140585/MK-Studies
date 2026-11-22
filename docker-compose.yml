@@ -1,0 +1,17 @@
+services:
+  appflash:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: appflash-app
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-3005}:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      - SQLITE_DB_PATH=/app/data/agent.db
+    volumes:
+      - ./src:/app/src
+      - ./data/pdfs:/app/data/pdfs
+      - ./data/agent.db:/app/data/agent.db

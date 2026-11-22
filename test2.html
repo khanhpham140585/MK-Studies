@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Minecraft Mini - Level 2</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #87CEEB;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        #gameCanvas {
+            border: 2px solid black;
+            background-color: #87CEEB;
+        }
+
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="640" height="480"></canvas>
+    <div id="info">Di chuyển nhân vật bằng các phím mũi tên!<br>Không thể đi xuyên qua đá!</div>
+
+    <script>
+        // Khởi tạo canvas và context
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Kích thước ô vuông
+        const tileSize = 32;
+
+        // Tọa độ của nhân vật (Steve)
+        let playerX = 5; // Xác định vị trí ngang
+        let playerY = 5; // Xác định vị trí dọc
+
+        // Mảng chứa các khối trên bản đồ
+        // 0: Không có gì
+        // 1: Đất (màu nâu)
+        // 2: Cỏ (màu xanh lá)
+        // 3: Đá (màu xám)
+        let map = [
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 3, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+        ];
+
+        // Hàm vẽ bản đồ
+        function drawMap() {
+            // Vẽ các ô vuông theo mảng map
+            for (let y = 0; y < map.length; y++) {
+                for (let x = 0; x < map[y].length; x++) {
+                    // Tọa độ vẽ của ô hiện tại
+                    const drawX = x * tileSize;
+                    const drawY = y * tileSize;
+
+                    // Vẽ theo loại khối
+                    if (map[y][x] === 1) {
+                        // Đất - màu nâu
+                        ctx.fillStyle = "#8B4513";
+                    } else if (map[y][x] === 2) {
+                        // Cỏ - màu xanh lá cây
+                        ctx.fillStyle = "#228B22";
+                    } else if (map[y][x] === 3) {
+                        // Đá - màu xám
+                        ctx.fillStyle = "#A9A9A9";
+                    } else {
+                        // Không có gì - để trống
+                        continue;
+                    }
+
+                    // Vẽ ô vuông
+                    ctx.fillRect(drawX, drawY, tileSize, tileSize);
+
+                    // Vẽ viền ô vuông
+                    ctx.strokeStyle = "#000000";
+                    ctx.strokeRect(drawX, drawY, tileSize, tileSize);
+                }
+            }
+        }
+
+        // Hàm vẽ nhân vật Steve
+        function drawPlayer() {
+            // Vị trí vẽ của nhân vật
+            const drawX = playerX * tileSize;
+            const drawY = playerY * tileSize;
+
+            // Vẽ thân nhân vật (màu xanh)
+            ctx.fillStyle = "#1E90FF";
+            ctx.fillRect(drawX, drawY, tileSize, tileSize);
+
+            // Vẽ đầu nhân vật (màu đỏ)
+            ctx.fillStyle = "#FF6347";
+            ctx.fillRect(drawX + 8, drawY - 8, 16, 16);
+
+            // Vẽ mắt nhân vật (màu trắng)
+            ctx.fillStyle = "white";
+            ctx.fillRect(drawX + 10, drawY - 6, 4, 4);
+            ctx.fillRect(drawX + 18, drawY - 6, 4, 4);
+
+            // Vẽ miệng nhân vật (màu đen)
+            ctx.fillStyle = "black";
+            ctx.fillRect(drawX + 12, drawY - 2, 8, 2);
+        }
+
+        // Hàm kiểm tra va chạm
+        function checkCollision(newX, newY) {
+            // Nếu vị trí mới nằm ngoài bản đồ thì không cho di chuyển
+            if (newX < 0 || newY < 0 || newX >= map[0].length || newY >= map.length) {
+                return true; // Va chạm
+            }
+
+            // Nếu ô mới là đá thì không cho đi qua
+            if (map[newY][newX] === 3) {
+                return true; // Va chạm
+            }
+
+            return false; // Không va chạm
+        }
+
+        // Hàm vẽ toàn bộ màn hình
+        function draw() {
+            // Xóa màn hình
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Vẽ bản đồ
+            drawMap();
+
+            // Vẽ nhân vật
+            drawPlayer();
+        }
+
+        // Hàm xử lý sự kiện nhấn phím
+        function handleKeyDown(event) {
+            // Tính vị trí mới dựa trên phím được nhấn
+            let newX = playerX;
+            let newY = playerY;
+
+            // Kiểm tra phím mũi tên
+            if (event.key === "ArrowUp") {
+                // Di chuyển lên
+                newY--;
+            } else if (event.key === "ArrowDown") {
+                // Di chuyển xuống
+                newY++;
+            } else if (event.key === "ArrowLeft") {
+                // Di chuyển sang trái
+                newX--;
+            } else if (event.key === "ArrowRight") {
+                // Di chuyển sang phải
+                newX++;
+            }
+
+            // Kiểm tra va chạm trước khi di chuyển
+            if (!checkCollision(newX, newY)) {
+                // Nếu không va chạm thì cập nhật vị trí mới
+                playerX = newX;
+                playerY = newY;
+            }
+
+            // Vẽ lại màn hình sau khi di chuyển
+            draw();
+        }
+
+        // Bắt sự kiện nhấn phím
+        document.addEventListener("keydown", handleKeyDown);
+
+        // Vẽ ban đầu
+        draw();
+    </script>
+</body>
+</html>

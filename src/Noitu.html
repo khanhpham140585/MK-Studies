@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>かんじを つなごう！</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 800px;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .score, .level {
+            background-color: #4a90e2;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+        
+        .kanji-display {
+            font-size: 5rem;
+            margin: 30px 0;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .emoji-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .emoji-item {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 20px 10px;
+            font-size: 7rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            aspect-ratio: 1/1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .emoji-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+        
+        .emoji-item.correct {
+            background-color: #90ee90;
+            animation: pulse 1s infinite;
+        }
+        
+        .emoji-item.incorrect {
+            background-color: #ff6b6b;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .hint-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #fff8dc;
+            border-radius: 15px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hint-text {
+            font-size: 1.2rem;
+            color: #333;
+        }
+        
+        .hint-button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .hint-button:hover {
+            background-color: #357abd;
+            transform: scale(1.05);
+        }
+        
+        .hint-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .message {
+            font-size: 1.4rem;
+            margin: 20px 0;
+            min-height: 30px;
+            font-weight: bold;
+        }
+        
+        .success {
+            color: #27ae60;
+        }
+        
+        .error {
+            color: #e74c3c;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            height: 15px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4a90e2, #6a11cb);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .achievements {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .achievement {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            background-color: #f1c40f;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .kanji-display {
+                font-size: 3.5rem;
+            }
+            
+            .emoji-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .emoji-item {
+                font-size: 7rem;
+                padding: 15px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>かんじを つなごう！</h1>
+        
+        <div class="game-info">
+            <div class="score">点数: <span id="score">0</span></div>
+            <div class="level">レベル: <span id="level">1</span></div>
+        </div>
+        
+        <div class="kanji-display" id="kanji">犬</div>
+        
+        <div class="hint-container">
+            <div class="hint-text" id="hint">ヒントをクリックして表示</div>
+        </div>
+        
+        <button class="hint-button" id="hintButton">ヒントを見る (3回)</button>
+        
+        <div class="emoji-container" id="emojiContainer">
+            <!-- Emojis will be populated by JavaScript -->
+        </div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progress" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <div class="achievements" id="achievements">
+            <!-- Achievements will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Kanji data for each level
+        const levels = [
+            {
+                name: "Level 1",
+                kanji: [
+                    { kanji: "犬", emoji: "🐶", hiragana: "いぬ" },
+                    { kanji: "猫", emoji: "🐱", hiragana: "ねこ" },
+                    { kanji: "山", emoji: "⛰️", hiragana: "やま" },
+                    { kanji: "川", emoji: "🌊", hiragana: "かわ" },
+                    { kanji: "木", emoji: "🌳", hiragana: "き" },
+                    { kanji: "口", emoji: "👄", hiragana: "くち" },
+                    { kanji: "目", emoji: "👀", hiragana: "め" },
+                    { kanji: "耳", emoji: "👂", hiragana: "みみ" },
+                    { kanji: "手", emoji: "✋", hiragana: "て" },
+                    { kanji: "足", emoji: "🦶", hiragana: "あし" }
+                ]
+            },
+            {
+                name: "Level 2",
+                kanji: [
+                    { kanji: "人", emoji: "👤", hiragana: "ひと" },
+                    { kanji: "日", emoji: "☀️", hiragana: "ひ" },
+                    { kanji: "月", emoji: "🌙", hiragana: "つき" },
+                    { kanji: "火", emoji: "🔥", hiragana: "ひ" },
+                    { kanji: "水", emoji: "💧", hiragana: "みず" },
+                    { kanji: "木", emoji: "🌲", hiragana: "き" },
+                    { kanji: "金", emoji: "💰", hiragana: "きん" },
+                    { kanji: "土", emoji: "🌍", hiragana: "つち" },
+                    { kanji: "空", emoji: "☁️", hiragana: "そら" },
+                    { kanji: "花", emoji: "🌸", hiragana: "はな" }
+                ]
+            },
+            {
+                name: "Level 3",
+                kanji: [
+                    { kanji: "学", emoji: "📚", hiragana: "がく" },
+                    { kanji: "校", emoji: "🏫", hiragana: "こう" },
+                    { kanji: "生", emoji: "🎓", hiragana: "せい" },
+                    { kanji: "日", emoji: "🌅", hiragana: "にち" },
+                    { kanji: "本", emoji: "📖", hiragana: "ほん" },
+                    { kanji: "中", emoji: "⚖️", hiragana: "ちゅう" },
+                    { kanji: "大", emoji: "🌍", hiragana: "たい" },
+                    { kanji: "小", emoji: "🔻", hiragana: "しょう" },
+                    { kanji: "上", emoji: "⬆️", hiragana: "じょう" },
+                    { kanji: "下", emoji: "⬇️", hiragana: "か" }
+                ]
+            }
+        ];
+
+        // Achievement system
+        const achievements = [
+            { name: "初心者", points: 100, unlocked: false },
+            { name: "中級者", points: 500, unlocked: false },
+            { name: "上級者", points: 1000, unlocked: false },
+            { name: "達人", points: 2000, unlocked: false }
+        ];
+
+        // Game state
+        let currentLevel = 0;
+        let currentKanjiIndex = 0;
+        let score = 0;
+        let hintsUsed = 0;
+        let totalHints = 3;
+        let kanjiData = [];
+        let shuffledEmojis = [];
+
+        // DOM elements
+        const kanjiDisplay = document.getElementById('kanji');
+        const emojiContainer = document.getElementById('emojiContainer');
+        const hintButton = document.getElementById('hintButton');
+        const hintDisplay = document.getElementById('hint');
+        const scoreDisplay = document.getElementById('score');
+        const levelDisplay = document.getElementById('level');
+        const messageDisplay = document.getElementById('message');
+        const progressBar = document.getElementById('progress');
+        const achievementsContainer = document.getElementById('achievements');
+
+        // Initialize game
+        function initGame() {
+            loadLevel(currentLevel);
+            updateScore();
+            updateProgress();
+            updateAchievements();
+        }
+
+        // Load a level
+        function loadLevel(levelIndex) {
+            if (levelIndex >= levels.length) {
+                messageDisplay.textContent = "ゲームクリア！おめでとうございます！";
+                messageDisplay.className = "message success";
+                return;
+            }
+            
+            currentKanjiIndex = 0;
+            hintsUsed = 0;
+            hintButton.disabled = false;
+            hintButton.textContent = "ヒントを見る (3回)";
+            hintDisplay.textContent = "ヒントをクリックして表示";
+            messageDisplay.textContent = "";
+            
+            kanjiData = levels[levelIndex].kanji;
+            levelDisplay.textContent = levelIndex + 1;
+            loadKanji();
+        }
+
+        // Load current kanji
+        function loadKanji() {
+            if (currentKanjiIndex >= kanjiData.length) {
+                // Move to next level
+                currentLevel++;
+                setTimeout(() => {
+                    loadLevel(currentLevel);
+                }, 1500);
+                return;
+            }
+            
+            const currentKanji = kanjiData[currentKanjiIndex];
+            kanjiDisplay.textContent = currentKanji.kanji;
+            
+            // Create emojis array with correct answer
+            const emojis = [];
+            emojis.push(currentKanji.emoji);
+            
+            // Add 5 random emojis (excluding the correct one)
+            const allEmojis = levels.flatMap(level => level.kanji.map(k => k.emoji));
+            const uniqueEmojis = [...new Set(allEmojis)];
+            
+            while (emojis.length < 6) {
+                const randomEmoji = uniqueEmojis[Math.floor(Math.random() * uniqueEmojis.length)];
+                if (!emojis.includes(randomEmoji)) {
+                    emojis.push(randomEmoji);
+                }
+            }
+            
+            // Shuffle emojis
+            shuffledEmojis = shuffleArray(emojis);
+            renderEmojis();
+        }
+
+        // Render emojis
+        function renderEmojis() {
+            emojiContainer.innerHTML = '';
+            
+            shuffledEmojis.forEach((emoji, index) => {
+                const emojiElement = document.createElement('div');
+                emojiElement.className = 'emoji-item';
+                emojiElement.textContent = emoji;
+                emojiElement.dataset.index = index;
+                
+                emojiElement.addEventListener('click', () => handleEmojiClick(emoji, index));
+                emojiContainer.appendChild(emojiElement);
+            });
+        }
+
+        // Handle emoji click
+        function handleEmojiClick(selectedEmoji, index) {
+            const currentKanji = kanjiData[currentKanjiIndex];
+            
+            if (selectedEmoji === currentKanji.emoji) {
+                // Correct answer
+                messageDisplay.textContent = "正解！";
+                messageDisplay.className = "message success";
+                
+                // Add score
+                let points = 10;
+                if (hintsUsed === 0) points += 5; // Bonus for no hints
+                if (hintsUsed === 1) points += 3;
+                if (hintsUsed === 2) points += 1;
+                
+                score += points;
+                updateScore();
+                
+                // Highlight correct emoji
+                const emojiElements = document.querySelectorAll('.emoji-item');
+                emojiElements[index].classList.add('correct');
+                
+                // Move to next kanji after delay
+                setTimeout(() => {
+                    currentKanjiIndex++;
+                    loadKanji();
+                }, 1000);
+            } else {
+                // Incorrect answer
+                messageDisplay.textContent = "不正解！もう一度挑戦してください";
+                messageDisplay.className = "message error";
+                
+                // Highlight incorrect emoji
+                const emojiElements = document.querySelectorAll('.emoji-item');
+                emojiElements[index].classList.add('incorrect');
+                
+                // Reset after delay
+                setTimeout(() => {
+                    emojiElements.forEach(el => el.classList.remove('incorrect'));
+                }, 1000);
+            }
+        }
+
+        // Show hint
+        function showHint() {
+            if (hintsUsed >= totalHints) return;
+            
+            const currentKanji = kanjiData[currentKanjiIndex];
+            let hint = "";
+            
+            switch(hintsUsed) {
+                case 0:
+                    hint = `ひらがな: ${currentKanji.hiragana}`;
+                    break;
+                case 1:
+                    hint = `漢字の意味: ${getMeaning(currentKanji.kanji)}`;
+                    break;
+                case 2:
+                    hint = `例文: ${getExample(currentKanji.kanji)}`;
+                    break;
+            }
+            
+            hintDisplay.textContent = hint;
+            hintsUsed++;
+            
+            if (hintsUsed >= totalHints) {
+                hintButton.disabled = true;
+                hintButton.textContent = "ヒントを使いました";
+            }
+        }
+
+        // Helper functions for hints
+        function getMeaning(kanji) {
+            const meanings = {
+                "犬": "犬",
+                "猫": "猫",
+                "山": "山",
+                "川": "川",
+                "木": "木",
+                "口": "口",
+                "目": "目",
+                "耳": "耳",
+                "手": "手",
+                "足": "足",
+                "人": "人",
+                "日": "日",
+                "月": "月",
+                "火": "火",
+                "水": "水",
+                "金": "金",
+                "土": "土",
+                "空": "空",
+                "花": "花",
+                "学": "学",
+                "校": "校",
+                "生": "生",
+                "本": "本",
+                "中": "中",
+                "大": "大",
+                "小": "小",
+                "上": "上",
+                "下": "下"
+            };
+            return meanings[kanji] || "意味が見つかりません";
+        }
+
+        function getExample(kanji) {
+            const examples = {
+                "犬": "犬が走っている",
+                "猫": "猫が寝ている",
+                "山": "山に登る",
+                "川": "川で泳ぐ",
+                "木": "木を切る",
+                "口": "口を開ける",
+                "目": "目を閉じる",
+                "耳": "耳を澄ませる",
+                "手": "手を振る",
+                "足": "足を洗う",
+                "人": "人を助ける",
+                "日": "日が昇る",
+                "月": "月が見える",
+                "火": "火をつける",
+                "水": "水を飲む",
+                "金": "金を払う",
+                "土": "土に植える",
+                "空": "空を見上げる",
+                "花": "花を摘む",
+                "学": "学ぶ",
+                "校": "学校に行く",
+                "生": "生きる",
+                "本": "本を読む",
+                "中": "中に入る",
+                "大": "大きい",
+                "小": "小さい",
+                "上": "上に上がる",
+                "下": "下に降りる"
+            };
+            return examples[kanji] || "例文がありません";
+        }
+
+        // Utility functions
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = score;
+            updateAchievements();
+        }
+
+        function updateProgress() {
+            const progress = ((currentKanjiIndex / kanjiData.length) * 100);
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function updateAchievements() {
+            achievementsContainer.innerHTML = '';
+            
+            achievements.forEach(achievement => {
+                if (score >= achievement.points) {
+                    achievement.unlocked = true;
+                    const achievementElement = document.createElement('div');
+                    achievementElement.textContent = `🔓 ${achievement.name}`;
+                    achievementElement.className = 'achievement unlocked';
+                    achievementsContainer.appendChild(achievementElement);
+                } else {
+                    const achievementElement = document.createElement('div');
+                    achievementElement.textContent = `🔒 ${achievement.name}`;
+                    achievementElement.className = 'achievement locked';
+                    achievementsContainer.appendChild(achievementElement);
+                }
+            });
+        }
+
+        // Event listeners
+        hintButton.addEventListener('click', showHint);
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>

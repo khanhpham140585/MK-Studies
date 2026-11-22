@@ -1,0 +1,78 @@
+# ============================================================
+# Family Finance Manager — .gitignore
+# ============================================================
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.turbo/
+
+# Environment & secrets — NEVER commit these
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+
+# Drizzle generated (keep migrations, ignore snapshots in .gitignore if desired)
+# db/migrations/ — keep committed
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+pnpm-debug.log*
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor & IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# TypeScript
+*.tsbuildinfo
+
+# Vite
+.vite/
+
+# Playwright
+playwright-report/
+test-results/
+
+# MinIO local data (if running outside Docker)
+.minio/
+
+data/
+
+.codegraph/
+
+.venv/
+
+node_modules/

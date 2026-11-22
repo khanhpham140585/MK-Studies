@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Shiritori (しりとりゲーム)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            z-index: 0;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #4ecdc4;
+            margin: 25px 0 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #4ecdc4;
+        }
+        
+        h3 {
+            color: #ff9f1c;
+            margin: 20px 0 10px;
+        }
+        
+        p, li {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        ul {
+            padding-left: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .level {
+            background-color: #f8f9fa;
+            border-left: 5px solid #4ecdc4;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .emoji {
+            font-size: 1.8rem;
+            margin: 0 5px;
+        }
+        
+        .hint {
+            background-color: #fff9c4;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .score {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .achievement {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .achievement-item {
+            background-color: #c8e6c9;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .mode {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .mode-btn {
+            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .mode-btn.active {
+            background: linear-gradient(to right, #ff6b6b 0%, #ffa502 100%);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+        }
+        
+        .game-area {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        #current-word {
+            font-size: 2.5rem;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #input-area {
+            margin: 20px 0;
+        }
+        
+        #user-input {
+            padding: 15px;
+            font-size: 1.2rem;
+            width: 70%;
+            border: 2px solid #4ecdc4;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        #submit-btn {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            background: linear-gradient(to right, #ff6b6b 0%, #ffa502 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        #submit-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .hint-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .hint-btn {
+            padding: 10px 15px;
+            background-color: #9575cd;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .hint-btn:disabled {
+            background-color: #bdbdbd;
+            cursor: not-allowed;
+        }
+        
+        #hint-display {
+            margin: 20px 0;
+            min-height: 60px;
+            padding: 15px;
+            background-color: #fff9c4;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .combo {
+            font-size: 1.2rem;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        
+        .score-display {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .mode {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            #user-input {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Game Shiritori (しりとりゲーム)</h1>
+        
+        <h2>Mục tiêu</h2>
+        <p>Game giáo dục tiếng Nhật dành cho học sinh:</p>
+        <ul>
+            <li>Phát triển kỹ năng giao tiếp tiếng Nhật</li>
+            <li>Rèn luyện trí nhớ từ vựng</li>
+            <li>Nâng cao khả năng tư duy logic</li>
+            <li>Giúp học sinh hiểu văn hóa Nhật Bản</li>
+        </ul>
+        
+        <h2>Đối tượng người chơi</h2>
+        <p>Phù hợp với học sinh từ cấp 3 trở lên, có kiến thức cơ bản về tiếng Nhật.</p>
+        
+        <h2>Quy tắc chơi</h2>
+        <p>Người chơi phải nói một từ bắt đầu bằng chữ cái cuối cùng của từ trước đó. Ví dụ:</p>
+        <ul>
+            <li>Bắt đầu: おはよう (Ohayou - Chào buổi sáng)</li>
+            <li>Tiếp theo: ございます (Gozaimasu - Cảm ơn)</li>
+            <li>Sau đó: ます (Masu - Kết thúc câu hỏi)</li>
+        </ul>
+        
+        <h2>Chế độ chơi</h2>
+        <div class="mode">
+            <button class="mode-btn active" data-mode="hiragana">Hiragana</button>
+            <button class="mode-btn" data-mode="katakana">Katakana</button>
+            <button class="mode-btn" data-mode="kanji">Kanji</button>
+        </div>
+        
+        <h2>Điểm thưởng</h2>
+        <div class="score">
+            <p>+10 điểm cho mỗi từ đúng</p>
+            <p>+5 điểm cho mỗi từ có thể sử dụng lại</p>
+            <p>+20 điểm cho combo 3 từ liên tiếp</p>
+        </div>
+        
+        <h2>Thành tựu</h2>
+        <div class="achievement">
+            <div class="achievement-item">10 từ đúng</div>
+            <div class="achievement-item">Combo 5 từ</div>
+            <div class="achievement-item">Hoàn thành 10 vòng</div>
+            <div class="achievement-item">Đạt 100 điểm</div>
+        </div>
+        
+        <h2>Trình độ tiến bộ</h2>
+        <div class="progress-bar">
+            <div class="progress" style="width: 45%"></div>
+        </div>
+        
+        <div class="game-area">
+            <h3>Từ hiện tại:</h3>
+            <div id="current-word">おはよう</div>
+            
+            <div id="input-area">
+                <input type="text" id="user-input" placeholder="Nhập từ tiếng Nhật...">
+                <button id="submit-btn">Gửi</button>
+            </div>
+            
+            <div class="hint-controls">
+                <button class="hint-btn" id="hint1">Gợi ý 1</button>
+                <button class="hint-btn" id="hint2">Gợi ý 2</button>
+                <button class="hint-btn" id="hint3">Gợi ý 3</button>
+            </div>
+            
+            <div id="hint-display">
+                Nhập từ và nhấn Gửi để bắt đầu chơi
+            </div>
+            
+            <div class="score-display">
+                <div>Điểm: <span id="score">0</span></div>
+                <div class="combo">Combo: <span id="combo">0</span></div>
+            </div>
+        </div>
+        
+        <h2>Dữ liệu từ vựng</h2>
+        <div class="level">
+            <h3>1. Hiragana (Hiragana)</h3>
+            <p>Đây là bảng chữ cái cơ bản của tiếng Nhật, dùng để viết từ ngữ và các từ không có kanji.</p>
+            <ul>
+                <li>あいうえお (aiueo) - 5 nguyên âm</li>
+                <li>かきくけこ (kakikukeko) - 5 phụ âm</li>
+                <li>さしすせそ (sashisuseso) - 5 phụ âm</li>
+            </ul>
+        </div>
+        
+        <div class="level">
+            <h3>2. Katakana (Katakana)</h3>
+            <p>Katakana được sử dụng để viết từ ngữ nước ngoài, tên riêng, và các từ mang tính chất đặc biệt.</p>
+            <ul>
+                <li>カキクケコ (Kakikukeko) - 5 phụ âm</li>
+                <li>サシスセソ (Sashisuseso) - 5 phụ âm</li>
+                <li>タチツテト (Tachitsuteto) - 5 phụ âm</li>
+            </ul>
+        </div>
+        
+        <div class="level">
+            <h3>3. Kanji (Kanji)</h3>
+            <p>Kanji là hệ thống ký tự được lấy từ tiếng Trung, dùng để viết các từ ngữ có ý nghĩa cụ thể.</p>
+            <ul>
+                <li>人 (Hito) - Người</li>
+                <li>日 (Hi) - Mặt trời</li>
+                <li>水 (Mizu) - Nước</li>
+                <li>火 (Hi) - Lửa</li>
+                <li>木 (Ki) - Cây</li>
+            </ul>
+        </div>
+        
+        <h2>Hướng dẫn sử dụng</h2>
+        <div class="hint">
+            <p><strong>Lưu ý:</strong> Khi nhập từ, hãy đảm bảo rằng chữ cái đầu của từ bạn nhập trùng với chữ cái cuối cùng của từ trước đó.</p>
+            <p>Ví dụ: Nếu từ trước là "おはよう" (Ohayou), thì từ tiếp theo phải bắt đầu bằng "よ" (yo).</p>
+        </div>
+        
+        <footer>
+            <p>Game Shiritori - Học tiếng Nhật vui vẻ!</p>
+            <p>© 2023 Game Shiritori. Tất cả quyền được bảo lưu.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Game data
+        const gameData = {
+            hiragana: [
+                { word: "あいうえお", reading: "aiueo" },
+                { word: "かきくけこ", reading: "kakikukeko" },
+                { word: "さしすせそ", reading: "sashisuseso" }
+            ],
+            katakana: [
+                { word: "カキクケコ", reading: "Kakikukeko" },
+                { word: "サシスセソ", reading: "Sashisuseso" },
+                { word: "タチツテト", reading: "Tachitsuteto" }
+            ],
+            kanji: [
+                { word: "人", reading: "Hito" },
+                { word: "日", reading: "Hi" },
+                { word: "水", reading: "Mizu" }
+            ]
+        };
+
+        // Game state
+        let currentMode = 'hiragana';
+        let score = 0;
+        let combo = 0;
+        let currentWord = '';
+        let usedWords = [];
+
+        // DOM elements
+        const currentWordEl = document.getElementById('current-word');
+        const userInputEl = document.getElementById('user-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const hintBtns = document.querySelectorAll('.hint-btn');
+        const hintDisplay = document.getElementById('hint-display');
+        const scoreEl = document.getElementById('score');
+        const comboEl = document.getElementById('combo');
+        const modeButtons = document.querySelectorAll('.mode-btn');
+
+        // Initialize game
+        function initGame() {
+            currentWord = getRandomWord();
+            currentWordEl.textContent = currentWord;
+            updateScore();
+        }
+
+        // Get random word from current mode
+        function getRandomWord() {
+            const words = gameData[currentMode];
+            return words[Math.floor(Math.random() * words.length)].word;
+        }
+
+        // Update score display
+        function updateScore() {
+            scoreEl.textContent = score;
+            comboEl.textContent = combo;
+        }
+
+        // Handle word submission
+        function submitWord() {
+            const userInput = userInputEl.value.trim();
+            
+            if (!userInput) {
+                hintDisplay.textContent = "Vui lòng nhập từ!";
+                return;
+            }
+            
+            // Check if word is valid (starts with last letter of current word)
+            const lastLetter = currentWord[currentWord.length - 1];
+            if (userInput[0] !== lastLetter) {
+                hintDisplay.textContent = `Từ phải bắt đầu bằng chữ "${lastLetter}"`;
+                return;
+            }
+            
+            // Check if word was already used
+            if (usedWords.includes(userInput)) {
+                hintDisplay.textContent = "Từ này đã được sử dụng!";
+                return;
+            }
+            
+            // Valid word
+            usedWords.push(userInput);
+            score += 10;
+            combo++;
+            
+            // Check for combo bonus
+            if (combo >= 3) {
+                score += 20;
+                hintDisplay.textContent = `Combo ${combo}! +20 điểm`;
+            } else {
+                hintDisplay.textContent = `Tốt! +10 điểm`;
+            }
+            
+            // Update game state
+            currentWord = userInput;
+            currentWordEl.textContent = currentWord;
+            userInputEl.value = '';
+            updateScore();
+        }
+
+        // Hint functions
+        function showHint(hintNumber) {
+            const words = gameData[currentMode];
+            const randomWord = words[Math.floor(Math.random() * words.length)];
+            
+            switch (hintNumber) {
+                case 1:
+                    hintDisplay.textContent = `Gợi ý: Từ bắt đầu bằng "${randomWord.word[0]}"`;
+                    break;
+                case 2:
+                    hintDisplay.textContent = `Gợi ý: Từ có ${randomWord.word.length} chữ cái`;
+                    break;
+                case 3:
+                    hintDisplay.textContent = `Gợi ý: Từ này là "${randomWord.word}"`;
+                    break;
+            }
+        }
+
+        // Mode change
+        function changeMode(mode) {
+            currentMode = mode;
+            
+            // Update active button
+            modeButtons.forEach(btn => {
+                if (btn.dataset.mode === mode) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Reset game
+            usedWords = [];
+            score = 0;
+            combo = 0;
+            initGame();
+        }
+
+        // Event listeners
+        submitBtn.addEventListener('click', submitWord);
+        userInputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') submitWord();
+        });
+
+        hintBtns.forEach((btn, index) => {
+            btn.addEventListener('click', () => showHint(index + 1));
+        });
+
+        modeButtons.forEach(btn => {
+            btn.addEventListener('click', () => changeMode(btn.dataset.mode));
+        });
+
+        // Initialize game
+        initGame();
+    </script>
+</body>
+</html>

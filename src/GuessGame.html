@@ -1,0 +1,411 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<script src="/js/lucide.min.js"></script>
+<title>Bo 12 Tuan Flashcard Worksheet - Interactive</title>
+
+</head>
+<style>
+    .lucide {
+        width: 20px;
+        height: 20px;
+        vertical-align: -3px;
+        stroke-width: 2;
+        margin-right: 4px;
+    }
+    button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #answersContainer button {
+        font-size:30px;
+    }
+</style>
+<body>
+ <!-- Ai Biến Mất? Game -->
+    <div id="aiBienMatGame" style="display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; padding: 20px; box-sizing: border-box;">
+        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+            <h2 style="color: #333;">Ai Biến Mất? (なにが なくなった？)</h2>
+            
+            <div id="gameInfo" style="margin-bottom: 20px;">
+                <p>Level: <span id="currentLevel">1</span></p>
+                <p>Score: <span id="score">0</span></p>
+            </div>
+            
+            <div id="gameArea" style="margin-bottom: 20px;">
+                <div id="cardsContainer" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;"></div>
+                <div id="questionMark" style="font-size: 60px; margin: 20px 0;"><i data-lucide="help-circle" style="width:64px;height:64px;color:#f59e0b;"></i></div>
+            </div>
+            
+            <div id="answerArea" style="margin-bottom: 20px;">
+                <p id="questionText">「なにが なくなった？」</p>
+                <div id="answersContainer" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;"></div>
+            </div>
+            
+            <div id="feedback" style="margin-bottom: 20px; min-height: 30px;"></div>
+            <div style="text-align: center;display: flex; justify-content: center; gap: 10px;">
+                 <button id="nextLevelBtn" style="display: inline-flex; padding: 10px 20px; margin: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;"><i data-lucide="play"></i> Next Level</button>
+                <button id="restartGameBtn" style="display: inline-flex; padding: 10px 20px; margin: 10px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;"><i data-lucide="rotate-ccw"></i> Restart Game</button>
+                <button id="backToMenuBtn" style="display: inline-flex; padding: 10px 20px; margin: 10px; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;"><i data-lucide="arrow-left"></i> Back to Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let currentLevel = 1;
+        let score = 0;
+        let gameActive = false;
+        let removedCard = null;
+        let correctAnswer = '';
+        let attempts = 0;
+        let timer = null;
+
+        // Level data with emojis and Japanese words
+        const levels = [
+            { 
+                level: 1, 
+                items: [
+                    { emoji: '🍎', text: 'りんご', reading: 'ringo' },
+                    { emoji: '🐜', text: 'あり', reading: 'ari' },
+                    { emoji: '🦑', text: 'いか', reading: 'ika' }
+                ] 
+            },
+            { 
+                level: 2, 
+                items: [
+                    { emoji: '🍎', text: 'りんご', reading: 'ringo' },
+                    { emoji: '🐜', text: 'あり', reading: 'ari' },
+                    { emoji: '🦑', text: 'いか', reading: 'ika' },
+                    { emoji: '🐄', text: 'うし', reading: 'ushi' }
+                ] 
+            },
+            { 
+                level: 3, 
+                items: [
+                    { emoji: '🍎', text: 'りんご', reading: 'ringo' },
+                    { emoji: '🐜', text: 'あり', reading: 'ari' },
+                    { emoji: '🦑', text: 'いか', reading: 'ika' },
+                    { emoji: '🐄', text: 'うし', reading: 'ushi' },
+                    { emoji: '🎨', text: 'え', reading: 'e' }
+                ] 
+            },
+            { 
+                level: 4, 
+                items: [
+                    { emoji: '🍎', text: 'りんご', reading: 'ringo' },
+                    { emoji: '🐜', text: 'あり', reading: 'ari' },
+                    { emoji: '🦑', text: 'いか', reading: 'ika' },
+                    { emoji: '🐄', text: 'うし', reading: 'ushi' },
+                    { emoji: '🎨', text: 'え', reading: 'e' },
+                    { emoji: '👹', text: 'おに', reading: 'oni' }
+                ] 
+            },
+            { 
+                level: 5, 
+                items: [
+                    { emoji: '🍎', text: 'りんご', reading: 'ringo' },
+                    { emoji: '🐜', text: 'あり', reading: 'ari' },
+                    { emoji: '🦑', text: 'いか', reading: 'ika' },
+                    { emoji: '🐄', text: 'うし', reading: 'ushi' },
+                    { emoji: '🎨', text: 'え', reading: 'e' },
+                    { emoji: '👹', text: 'おに', reading: 'oni' },
+                    { emoji: '🐸', text: 'かえる', reading: 'kaeru' }
+                ] 
+            },
+            { 
+                level: 6, 
+                items: [
+                    { emoji: '🍎', text: 'りんご', reading: 'ringo' },
+                    { emoji: '🐜', text: 'あり', reading: 'ari' },
+                    { emoji: '🦑', text: 'いか', reading: 'ika' },
+                    { emoji: '🐄', text: 'うし', reading: 'ushi' },
+                    { emoji: '🎨', text: 'え', reading: 'e' },
+                    { emoji: '👹', text: 'おに', reading: 'oni' },
+                    { emoji: '🐸', text: 'かえる', reading: 'kaeru' },
+                    { emoji: '🌳', text: 'き', reading: 'ki' }
+                ] 
+            },
+            { 
+                level: 7, 
+                items: [
+                    { emoji: '🍎', text: 'りんご', reading: 'ringo' },
+                    { emoji: '🐜', text: 'あり', reading: 'ari' },
+                    { emoji: '🦑', text: 'いか', reading: 'ika' },
+                    { emoji: '🐄', text: 'うし', reading: 'ushi' },
+                    { emoji: '🎨', text: 'え', reading: 'e' },
+                    { emoji: '👹', text: 'おに', reading: 'oni' },
+                    { emoji: '🐸', text: 'かえる', reading: 'kaeru' },
+                    { emoji: '🌳', text: 'き', reading: 'ki' },
+                    { emoji: '🐻', text: 'くま', reading: 'kuma' }
+                ] 
+            },
+            { 
+                level: 8, 
+                items: [
+                    { emoji: '🍎', text: 'りんご', reading: 'ringo' },
+                    { emoji: '🐜', text: 'あり', reading: 'ari' },
+                    { emoji: '🦑', text: 'いか', reading: 'ika' },
+                    { emoji: '🐄', text: 'うし', reading: 'ushi' },
+                    { emoji: '🎨', text: 'え', reading: 'e' },
+                    { emoji: '👹', text: 'おに', reading: 'oni' },
+                    { emoji: '🐸', text: 'かえる', reading: 'kaeru' },
+                    { emoji: '🌳', text: 'き', reading: 'ki' },
+                    { emoji: '🐻', text: 'くま', reading: 'kuma' },
+                    { emoji: '☁️', text: 'くも', reading: 'kumo' }
+                ] 
+            }
+        ];
+
+        // Initialize the game
+        function initGame() {
+            const savedLevel = localStorage.getItem('aiBienMatLevel');
+            const savedScore = localStorage.getItem('aiBienMatScore');
+            
+            if (savedLevel) currentLevel = parseInt(savedLevel);
+            if (savedScore) score = parseInt(savedScore);
+            
+            updateUI();
+        }
+
+        // Update UI elements
+        function updateUI() {
+            document.getElementById('currentLevel').textContent = currentLevel;
+            document.getElementById('score').textContent = score;
+        }
+
+        // Start the game
+        function startGame() {
+            document.getElementById('aiBienMatGame').style.display = 'block';
+            document.getElementById('gameArea').style.display = 'block';
+            document.getElementById('answerArea').style.display = 'block';
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('nextLevelBtn').style.display = 'block';
+            document.getElementById('restartGameBtn').style.display = 'block';
+            
+            gameActive = true;
+            attempts = 0;
+            
+            // Show cards for 3 seconds
+            showCards();
+        }
+
+        // Show all cards for a moment
+        function showCards() {
+            const levelData = levels[currentLevel - 1];
+            if (!levelData) return;
+            
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+            
+            levelData.items.forEach(item => {
+                const card = document.createElement('div');
+                card.style.cssText = 'font-size: 80px; padding: 15px; background: #e3f2fd; border-radius: 10px; cursor: pointer; transition: all 0.3s;';
+                card.innerHTML = `${item.emoji}<br><span style="font-size: 26px;">${item.text}</span>`;
+                card.dataset.text = item.text;
+                card.dataset.reading = item.reading;
+                
+                // Add click event to speak the reading
+                card.addEventListener('click', () => {
+                    speakReading(item.reading);
+                });
+                
+                container.appendChild(card);
+            });
+            
+            // Hide cards after 3 seconds
+            setTimeout(() => {
+                hideCards();
+            }, 3000);
+        }
+
+        // Hide cards and remove one
+        function hideCards() {
+            const levelData = levels[currentLevel - 1];
+            if (!levelData) return;
+            
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+            
+            // Remove a random card
+            const randomIndex = Math.floor(Math.random() * levelData.items.length);
+            removedCard = levelData.items[randomIndex];
+            correctAnswer = removedCard.text;
+            
+            // Show remaining cards
+            levelData.items.forEach((item, index) => {
+                if (index !== randomIndex) {
+                    const card = document.createElement('div');
+                    card.style.cssText = 'font-size: 80px; padding: 15px; background: #e3f2fd; border-radius: 10px; cursor: pointer; transition: all 0.3s;';
+                    card.innerHTML = `${item.emoji}<br><span style="font-size: 26px;">${item.text}</span>`;
+                    card.dataset.text = item.text;
+                    card.dataset.reading = item.reading;
+                    
+                    // Add click event to speak the reading
+                    card.addEventListener('click', () => {
+                        speakReading(item.reading);
+                    });
+                    
+                    container.appendChild(card);
+                }
+            });
+            
+            document.getElementById('questionMark').style.display = 'block';
+            document.getElementById('answerArea').style.display = 'block';
+            document.getElementById('questionText').textContent = '「なにが なくなった？」';
+            
+            // Show answers
+            showAnswers();
+        }
+
+        // Show answer options
+        function showAnswers() {
+            const levelData = levels[currentLevel - 1];
+            if (!levelData) return;
+            
+            const container = document.getElementById('answersContainer');
+            container.innerHTML = '';
+            
+            // Create shuffled array of answers (including correct one)
+            const answers = [correctAnswer];
+            const allItems = levelData.items.filter(item => item.text !== correctAnswer);
+            
+            // Add 3 random incorrect answers
+            while (answers.length < 4 && allItems.length > 0) {
+                const randomIndex = Math.floor(Math.random() * allItems.length);
+                const answer = allItems[randomIndex].text;
+                if (!answers.includes(answer)) {
+                    answers.push(answer);
+                }
+                allItems.splice(randomIndex, 1);
+            }
+            
+            // Shuffle answers
+            shuffleArray(answers);
+            
+            // Create answer buttons
+            answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.style.cssText = 'padding: 10px 20px; margin: 5px; background: #bbdefb; border: none; border-radius: 5px; cursor: pointer;';
+                button.textContent = answer;
+                button.addEventListener('click', () => checkAnswer(answer));
+                container.appendChild(button);
+            });
+        }
+
+        // Check if the selected answer is correct
+        function checkAnswer(selectedAnswer) {
+            if (!gameActive) return;
+            
+            const feedback = document.getElementById('feedback');
+            
+            if (selectedAnswer === correctAnswer) {
+                // Correct answer
+                feedback.innerHTML = '<p style="color: green; font-weight: bold;">Correct! 🎉</p>';
+                
+                // Calculate score based on attempts
+                let points = 100;
+                if (attempts > 0) points = Math.max(50, 100 - (attempts * 20));
+                score += points;
+                
+                localStorage.setItem('aiBienMatScore', score);
+                
+                // Show next level button after delay
+                setTimeout(() => {
+                    document.getElementById('nextLevelBtn').style.display = 'inline-block';
+                    feedback.innerHTML += `<p>Score: ${points} points</p>`;
+                }, 1000);
+            } else {
+                // Incorrect answer
+                feedback.innerHTML = '<p style="color: red;">Try again! ❌</p>';
+                attempts++;
+                
+                if (attempts >= 3) {
+                    // Show correct answer after 3 attempts
+                    feedback.innerHTML += `<p>Correct answer was: ${correctAnswer}</p>`;
+                    setTimeout(() => {
+                        document.getElementById('restartGameBtn').style.display = 'inline-block';
+                    }, 1000);
+                }
+            }
+            
+            gameActive = false;
+        }
+
+        // Next level button handler
+        function nextLevel() {
+            currentLevel++;
+            if (currentLevel > levels.length) {
+                currentLevel = 1; // Reset to first level after completing all
+            }
+            
+            localStorage.setItem('aiBienMatLevel', currentLevel);
+            updateUI();
+            
+            document.getElementById('nextLevelBtn').style.display = 'none';
+            document.getElementById('feedback').innerHTML = '';
+            
+            // Start next level after delay
+            setTimeout(() => {
+                startGame();
+            }, 1000);
+        }
+
+        // Restart game button handler
+        function restartGame() {
+            currentLevel = 1;
+            score = 0;
+            
+            localStorage.setItem('aiBienMatLevel', currentLevel);
+            localStorage.setItem('aiBienMatScore', score);
+            
+            updateUI();
+            
+            document.getElementById('restartGameBtn').style.display = 'none';
+            document.getElementById('feedback').innerHTML = '';
+            
+            // Start game again
+            setTimeout(() => {
+                startGame();
+            }, 1000);
+        }
+
+        // Speak the reading using Web Speech API
+        function speakReading(reading) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(reading);
+                utterance.lang = 'ja-JP';
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Utility function to shuffle array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Back to menu button handler
+        function backToMenu() {
+           window.location.href = '/';
+        }
+
+        // Event listeners for buttons
+        document.getElementById('nextLevelBtn').addEventListener('click', nextLevel);
+        document.getElementById('restartGameBtn').addEventListener('click', restartGame);
+        document.getElementById('backToMenuBtn').addEventListener('click', backToMenu);
+
+        // Initialize game when page loads
+        window.addEventListener('load', () => {
+            initGame();
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body></html>

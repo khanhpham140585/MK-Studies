@@ -1,0 +1,1081 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bo 12 Tuan Flashcard Worksheet - Interactive</title>
+<script src="/js/lucide.min.js"></script>
+<style>
+.lucide {
+    width: 20px;
+    height: 20px;
+    vertical-align: -3px;
+    stroke-width: 2;
+    margin-right: 4px;
+}
+.menu-toggle .lucide {
+    margin-right: 0;
+    vertical-align: middle;
+}
+#nav .lucide {
+    vertical-align: -3px;
+    margin-right: 2px;
+}
+body{font-family:Arial;margin:0}
+body.emojiHidden .emoji,
+body.emojiHidden .memoryEmoji{display:none}
+/* Memory Game styles */
+.memory-game-root{min-height:60vh;padding:20px;display:flex;flex-direction:column;align-items:center;gap:12px;background:linear-gradient(135deg,#fffbf5,#f0f9ff);border-radius:12px}
+.game-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.game-stats{display:flex;gap:12px;align-items:center;font-weight:700}
+.board{display:grid;gap:12px;justify-content:center}
+.card{width:100px;height:120px;perspective:1000px;border-radius:12px}
+.cardInner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .6s}
+.card.flipped .cardInner{transform:rotateY(180deg)}
+.cardFace{position:absolute;inset:0;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:46px;backface-visibility:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.12)}
+.cardBack{background:linear-gradient(180deg,#fff,#f3f4f6);font-size:40px}
+.cardFront{transform:rotateY(180deg);background:linear-gradient(180deg,#fff,#fffbeb);font-size:60px;display:grid}
+.cardFront span{font-size:18px;font-weight:700;color:#333;text-align:center}
+.card:hover{transform:translateY(-4px)}
+.popup{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,0.98);padding:18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.18);z-index:50;display:none}
+.popup.show{display:block}
+.btn{padding:8px 12px;border-radius:10px;background:#2563eb;color:#fff;border:none;cursor:pointer}
+.btn.secondary{background:#10b981}
+.confetti{position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;overflow:hidden;z-index:60}
+.confetti span{position:absolute;animation:fall 1200ms linear infinite;opacity:0.9}
+@keyframes fall{0%{transform:translateY(-10vh) rotate(0)}100%{transform:translateY(110vh) rotate(360deg)}}
+#menu{position:fixed;top:0;left:0;right:0;background:#f0f0f0;padding:8px;display:flex;gap:6px;flex-wrap:wrap;z-index:10}
+#content{margin-top:70px}
+.slide{display:none;height:75vh;justify-content:center;align-items:center;flex-direction:column}
+.memoryMode{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px;min-height:calc(100vh - 90px)}
+.memoryBoard{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:12px;width:min(92vw,1100px);min-height:62vh;border:2px dashed #bbb;border-radius:16px;background:linear-gradient(135deg,#fff,#f7f7ff);padding:12px;box-sizing:border-box;overflow:hidden;margin:0 auto}
+.memoryItem{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:4px;cursor:default;border:1px solid #e2e8f0;border-radius:14px;background:rgba(255,255,255,.92);box-shadow:0 4px 12px rgba(15,23,42,.08);min-height:110px;padding:8px;box-sizing:border-box;position:relative}
+.memorySlotIndex{position:absolute;top:6px;left:8px;font-size:22px;font-weight:700;color:#475569;background:rgba(241,245,249,.95);border:1px solid #cbd5e1;border-radius:999px;padding:2px 6px;z-index:1}
+.memoryEmoji{font-size:150px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.15))}
+.memoryWord{font-size:16px;font-weight:700;color:#333;background:rgba(255,255,255,.88);padding:2px 6px;border-radius:8px}
+.memoryHidden .memoryEmoji,
+.memoryHidden .memoryWord{display:none}
+.memoryControls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.memorySetting{display:flex;align-items:center;gap:6px;font-size:14px}
+.memorySetting input{width:56px;padding:4px 6px;border:1px solid #cbd5e1;border-radius:8px}
+.slide.active{display:flex}
+.emoji{font-size:250px}
+.word{font-size:104px;text-align:center}
+#nav{position:fixed;bottom:10px;left:0;right:0;text-align:center;display:flex;align-items: center;}
+button{padding:8px 14px}
+.menuButton.active{background:#2563eb;color:#fff;border-color:#1d4ed8;box-shadow:0 0 0 2px rgba(37,99,235,.15)}
+.reading{font-size:18px;color:#555;margin-top:6px}
+.example{font-size:50px;color:#2b6cb0;margin-top:8px;text-align:center;max-width:640px}
+#progressWrap{position:fixed;bottom:60px;left:10px;right:10px;border:1px solid #999;height:20px}
+#bar{height:100%;width:0%;background:#999}
+#weeklinks{padding:10px}
+.menu-toggle {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .menu-toggle:hover {
+            background: #45a049;
+        }
+        
+        .menu-toggle span {
+            margin-right: 8px;
+        }
+        .menu{
+           margin-left:10px;
+        }
+
+        .menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: 2px 0 10px rgba(0,0,0,.15);
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    padding: 60px 10px 10px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.menuButton {
+  margin-left:30px;
+    width: 100%;
+    text-align: left;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 8px;
+    background: #f5f5f5;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.menuButton:hover {
+    background: #e8e8e8;
+}
+
+.menu-toggle {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+}
+</style>
+</head>
+<body>
+<button id="menuToggle" class="menu-toggle" onclick="toggleMenu()">
+    <i data-lucide="menu"></i>
+</button>
+<nav id="menu" class="menu" style="display:none">
+
+    <!-- 国語 -->
+    <div class="menuCategory">
+        <h3><i data-lucide="book-open"></i> 国語</h3>
+
+        <div class="menuSubTitle">一年生</div>
+        <button class="menuButton" onclick="loadCardSet('hiraganaChar')">ひらがな文字</button>
+        <button class="menuButton" onclick="loadCardSet('katakanaChar')">カタカナ文字</button>
+        <button class="menuButton" onclick="loadCardSet('hiragana')">ひらがな言葉</button>
+        <button class="menuButton" onclick="loadCardSet('katakana')">カタカナ言葉</button>
+        <button class="menuButton" onclick="loadCardSet('kanji')">漢字</button>
+        <button class="menuButton" onclick="loadCardSet('grade1Kanji')">一年生漢字</button>
+
+        <div class="menuSubTitle">二年生</div>
+        <button class="menuButton" onclick="loadCardSet('grade2Kanji')">二年生漢字</button>
+
+        <div class="menuSubTitle">三年生</div>
+        <button class="menuButton" onclick="loadCardSet('grade3Kanji')">三年生漢字</button>
+        <button class="menuButton" onclick="loadCardSet('grade3Topics')">三年生内容</button>
+        <div class="menuSubTitle">漢字</div>
+        <button class="menuButton" onclick="loadCardSet('grade1-3Kanji','kanji_dot2_1_100')">漢字1-100</button>
+        <button class="menuButton" onclick="loadCardSet('grade1-3Kanji','kanji_dot2_101_200')">漢字101-200</button>
+        <button class="menuButton" onclick="loadCardSet('grade1-3Kanji','kanji_dot3_201_300')">漢字201-300</button>
+        <button class="menuButton" onclick="loadCardSet('grade1-3Kanji','kanji_dot4_301_400')">漢字301-400</button>
+        <button class="menuButton" onclick="loadCardSet('grade1-3Kanji','kanji_dot5_401_500')">漢字401-500</button>
+        <button class="menuButton" onclick="loadCardSet('grade1-3KanjiExample','example_read_1_100')">読解1-100</button>
+
+        <button class="menuButton" onclick="openURL('study-japanese')">
+            study-japanese
+        </button>
+    </div>
+
+    <!-- 算数 -->
+    <div class="menuCategory">
+        <h3><i data-lucide="calculator"></i> 算数</h3>
+
+        <button class="menuButton" onclick="loadCardSet('multiplication')">
+            九九（1～9）
+        </button>
+
+        <button class="menuButton" onclick="loadCardSet('division')">
+            わり算（1～10）
+        </button>
+    </div>
+
+    <!-- 英語 -->
+    <div class="menuCategory">
+        <h3><i data-lucide="languages"></i> 英語</h3>
+
+        <button class="menuButton" onclick="loadCardSet('englishAbc')">
+            ABC tiếng Anh
+        </button>
+
+        <button class="menuButton" onclick="openURL('study-english')">
+            study-english
+        </button>
+    </div>
+
+    <div class="menuCategory">
+        <h3><i data-lucide="file-text"></i> Read PDF</h3>
+
+        <button class="menuButton" onclick="openURL('readpdf')">
+            Read PDF
+        </button>
+
+    </div>
+
+    <!-- ゲーム -->
+    <div class="menuCategory">
+        <h3><i data-lucide="gamepad-2"></i> ゲーム</h3>
+
+        <button class="menuButton" onclick="showMemoryMode()"><i data-lucide="brain"></i> 位置覚える</button>
+        <button class="menuButton" onclick="openMemoryGame()"><i data-lucide="layout-grid"></i> Memory Game</button>
+        <button class="menuButton" onclick="openURL('GuessGame')"><i data-lucide="help-circle"></i> Guess Game</button>
+        <button class="menuButton" onclick="openURL('Noitu')"><i data-lucide="link"></i> Tìm Từ</button>
+        <button class="menuButton" onclick="openURL('shiritori')"><i data-lucide="gamepad-2"></i> Shiritori Game</button>
+    </div>
+
+    <!-- その他 -->
+    <div class="menuCategory">
+        <h3><i data-lucide="settings"></i> その他</h3>
+        <button class="menuButton" onclick="toggleFull()"><i data-lucide="maximize"></i> Fullscreen</button>
+        <button class="menuButton" onclick="toggleEmojiVisibility()"><i data-lucide="eye"></i> Ẩn/Hiện Hình</button>
+    </div>
+
+</nav>
+<div id="content"></div>
+
+<!-- Memory Game popup and confetti -->
+<div id="memoryPopup" class="popup" role="dialog" aria-hidden="true">
+  <div id="popupMsg">Level Complete</div>
+  <div style="margin-top:12px">
+    <button id="nextLevelBtn" class="btn">Next Level</button> <button id="playAgainBtn" class="btn secondary">Play Again</button>
+  </div>
+</div>
+<div id="confetti" class="confetti" aria-hidden="true"></div>
+
+<!-- <div id="progressWrap"><div id="bar"></div></div> -->
+
+<div id="nav">
+<button class="menuButton" style="width:100px;" onclick="toggleAnswerVisibility()"><i data-lucide="search"></i></button>
+<button onclick="prevPage()"><i data-lucide="chevron-left"></i> Back</button>
+<span id="counter"></span>
+<button onclick="nextPage()">Next <i data-lucide="chevron-right"></i></button>
+  <button class="menuButton" style="width:100px;" onclick="toggleRandomMode()"><i data-lucide="shuffle"></i></button>
+</div>
+
+<script>
+  (function () {
+    let startX = 0;
+    let startY = 0;
+    const minSwipeDistance = 50; // px
+
+    document.addEventListener('touchstart', function (e) {
+        const touch = e.changedTouches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', function (e) {
+        const touch = e.changedTouches[0];
+
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY;
+
+        // Bỏ qua nếu vuốt dọc nhiều hơn vuốt ngang
+        if (Math.abs(deltaY) > Math.abs(deltaX)) {
+            return;
+        }
+
+        if (Math.abs(deltaX) < minSwipeDistance) {
+            return;
+        }
+
+        if (deltaX < 0) {
+            // Swipe trái
+            nextPage();
+        } else {
+            // Swipe phải
+          
+             prevPage();
+        }
+    }, { passive: true });
+})();
+  function openURL(val){
+     window.location.href = "/" + val;
+  }
+   function toggleMenu() {
+            const menu = document.getElementById('menu');
+            const menuToggle = document.getElementById('menuToggle');
+            
+            if (menu.style.display === 'none' || menu.style.display === '') {
+                menu.style.display = 'block';
+                menuToggle.innerHTML = '<span>✕</span>';
+            } else {
+                menu.style.display = 'none';
+                menuToggle.innerHTML = '<span>☰</span>';
+            }
+        }
+  let mgState = {level:1, score:0, moves:0, time:0, timerId:null, firstFlip:null, secondFlip:null, lock:false, matches:0, totalPairs:0, startTime:null};
+const hiragana_char = [
+  // Hiragana cơ bản
+  ["a", "あ"], ["i", "い"], ["u", "う"], ["e", "え"], ["o", "お"],
+
+  ["ka", "か"], ["ki", "き"], ["ku", "く"], ["ke", "け"], ["ko", "こ"],
+
+  ["sa", "さ"], ["shi", "し"], ["su", "す"], ["se", "せ"], ["so", "そ"],
+
+  ["ta", "た"], ["chi", "ち"], ["tsu", "つ"], ["te", "て"], ["to", "と"],
+
+  ["na", "な"], ["ni", "に"], ["nu", "ぬ"], ["ne", "ね"], ["no", "の"],
+
+  ["ha", "は"], ["hi", "ひ"], ["fu", "ふ"], ["he", "へ"], ["ho", "ほ"],
+
+  ["ma", "ま"], ["mi", "み"], ["mu", "む"], ["me", "め"], ["mo", "も"],
+
+  ["ya", "や"], ["yu", "ゆ"], ["yo", "よ"],
+
+  ["ra", "ら"], ["ri", "り"], ["ru", "る"], ["re", "れ"], ["ro", "ろ"],
+
+  ["wa", "わ"], ["wo", "を"], ["n", "ん"],
+
+  // Dakuten (濁音)
+  ["ga", "が"], ["gi", "ぎ"], ["gu", "ぐ"], ["ge", "げ"], ["go", "ご"],
+
+  ["za", "ざ"], ["ji", "じ"], ["zu", "ず"], ["ze", "ぜ"], ["zo", "ぞ"],
+
+  ["da", "だ"], ["ji", "ぢ"], ["zu", "づ"], ["de", "で"], ["do", "ど"],
+
+  ["ba", "ば"], ["bi", "び"], ["bu", "ぶ"], ["be", "べ"], ["bo", "ぼ"],
+
+  // Handakuten (半濁音)
+  ["pa", "ぱ"], ["pi", "ぴ"], ["pu", "ぷ"], ["pe", "ぺ"], ["po", "ぽ"],
+
+  // Âm ghép (拗音)
+  ["kya", "きゃ"], ["kyu", "きゅ"], ["kyo", "きょ"],
+
+  ["sha", "しゃ"], ["shu", "しゅ"], ["sho", "しょ"],
+
+  ["cha", "ちゃ"], ["chu", "ちゅ"], ["cho", "ちょ"],
+
+  ["nya", "にゃ"], ["nyu", "にゅ"], ["nyo", "にょ"],
+
+  ["hya", "ひゃ"], ["hyu", "ひゅ"], ["hyo", "ひょ"],
+
+  ["mya", "みゃ"], ["myu", "みゅ"], ["myo", "みょ"],
+
+  ["rya", "りゃ"], ["ryu", "りゅ"], ["ryo", "りょ"],
+
+  ["gya", "ぎゃ"], ["gyu", "ぎゅ"], ["gyo", "ぎょ"],
+
+  ["ja", "じゃ"], ["ju", "じゅ"], ["jo", "じょ"],
+
+  ["bya", "びゃ"], ["byu", "びゅ"], ["byo", "びょ"],
+
+  ["pya", "ぴゃ"], ["pyu", "ぴゅ"], ["pyo", "ぴょ"]
+];
+
+const cards=[["🐱","ねこ"],
+["🐶","いぬ"],
+["🐻","くま"],
+["🐵","さる"],
+["🐮","うし"],
+["🐴","うま"],
+["🐦","とり"],
+["🐰","うさぎ"],
+["🐷","ぶた"],
+["🐘","ぞう"],
+["🍎","りんご"],
+["🍌","ばなな"],
+["🍉","すいか"],
+["🍅","とまと"],
+["🥚","たまご"],
+["🍊","みかん"],
+["🍑","もも"],
+["🍇","ぶどう"],
+["🍞","ぱん"],
+["🍙","おにぎり"],
+["🚗","くるま"],
+["🚆","でんしゃ"],
+["📖","ほん"],
+["🎒","かばん"],
+["✏️","えんぴつ"],
+["✂️","はさみ"],
+["🪑","いす"],
+["☂️","かさ"],
+["⌚","とけい"],
+["🚪","どあ"],
+["🍎","りんご"],
+["🍞","ぱん"],
+["📖","ほん"],
+["🍊","みかん"],
+["👓","めがね"],
+["🏠","げんかん"],
+["🎵","おんがく"],
+["🖍️","えんぴつ"],
+["📰","しんぶん"],
+["📞","でんわ"],
+["🍚","ごはん"],
+["🦊","きつね"],
+["🐧","ぺんぎん"],
+["🚓","ぱとかー"],
+["🏞️","こうえん"],
+["🏫","せんせい"],
+["🎈","ふうせん"],
+["🥕","にんじん"],
+["🥪","さんどいっち"],
+["🌕","まんげつ"],
+["🏫","がっこう"],
+["✈️","りょこう"],
+["🥛","ぎゅうにゅう"],
+["📮","ゆうびん"],
+["🎬","えいが"],
+["📚","えいご"],
+["🌆","ゆうがた"],
+["☀️","おはよう"],
+["👵","おばあさん"],
+["👴","おじいさん"],
+["🎂","たんじょうび"],
+["🏥","びょういん"],
+["🧑‍🏫","きょうし"],
+["🏫","きょうしつ"],
+["📅","きょう"],
+["🗼","とうきょう"],
+["🎏","こいのぼり"],
+["🏞️","こうえん"],
+["🍱","おべんとう"],
+["🚗","こうつう"],
+["📖","どうぶつ"],
+["🎹","おんがくきょうしつ"],
+["🌊","おおうみ"],
+["🕊️","へいわ"],
+["🚪","ろうか"],
+["🥒","きゅうり"],
+["🚑","きゅうきゅうしゃ"],
+["📅","きょう"],
+["🏫","きょうしつ"],
+["📷","しゃしん"],
+["🚒","しょうぼうしゃ"],
+["📚","しゅくだい"],
+["🗞️","しゅうかん"],
+["📖","としょかん"],
+["🏫","しょうがっこう"],
+["🍵","おちゃ"],
+["👶","あかちゃん"],
+["🍜","ちゅうか"],
+["🌏","ちゅうごく"],
+["🦋","ちょう"],
+["💰","ちょきん"],
+["🎓","りゅうがく"],
+["✈️","りょこう"],
+["🏨","りょかん"],
+["🎫","きょうりょく"],
+["🐱","きゃっと"],
+["🧑","きゃく"],
+["🚃","きゅうこう"],
+["📸","しゃしょう"],
+["🔧","しゅうり"],
+["🛒","しょうひん"],
+["🏪","しょうてん"],
+["📘","りゅうがくせい"],
+["🚲","きょうそう"],
+["🏡","きょうだい"],
+["🎠","きゃらくたー"],
+["🧃","じゅーす"],
+["🧭","りょうこう"],
+["🎪","きょうえん"],
+["📔","しゅっせきちょう"],
+["🖼️","がぞう"],
+["🏫","がっこう"],
+["🐟","ざかな"],
+["🎓","だいがく"],
+["🍌","ばなな"],
+["🚌","ばす"],
+["👵","おばあさん"],
+["🍞","ぱん"],
+["📦","ぱっく"],
+["🚆","でんしゃ"],
+["🥔","じゃがいも"],
+["🎹","ぴあの"],
+["⚽","ぼーる"],
+["🦷","はみがき"],
+["🧢","ぼうし"],
+["🌹","ばら"],
+["🐴","ばしゃ"],
+["📕","ざっし"],
+["🚪","だいどころ"],
+["🎁","ぷれぜんと"],
+["🍇","ぶどう"],
+["🏠","げんかん"],
+["🦍","ごりら"],
+["🧸","ぬいぐるみ"],
+["🥁","どらむ"],
+["📺","てれび"],
+["🍙","おにぎり"],
+["🎈","ふうせん"],
+["🚲","じてんしゃ"],
+["🪥","はぶらし"],
+["🚑","きゅうきゅうしゃ"],
+["🏫","しょうがっこう"],
+["📷","しゃしん"],
+["🥛","ぎゅうにゅう"],
+["✈️","りょこう"],
+["📚","としょかん"],
+["🚒","しょうぼうしゃ"],
+["🎓","りゅうがく"],
+["🎫","きょうりょく"],
+["🏨","りょかん"],
+["📮","ゆうびんきょく"],
+["🎹","おんがくきょうしつ"],
+["🏥","びょういん"],
+["🗺️","りょこうちず"],
+["🍱","おべんとうばこ"],
+["🏞️","こうえんあそび"],
+["🎂","たんじょうびかい"],
+["🚄","しんかんせん"],
+["📺","てれびきょく"],
+["🏫","きょういくいいんかい"],
+["🐱","くろい ねこが います。"],
+["🍎","あかい りんごを たべます。"],
+["🏫","きょう がっこうへ いきます。"],
+["🥛","ぎゅうにゅうを のみます。"],
+["📷","しゃしんを みます。"],
+["🐶","いぬと あそびます。"],
+["🚌","ばすで いきます。"],
+["📖","ほんを よみます。"],
+["🌙","よるに ねます。"],
+["🍌","ばななを たべます。"],
+["🚗","くるまで いきます。"],
+["☂️","かさを もちます。"],
+["🎒","かばんを ひらきます。"],
+["🐰","うさぎを みました。"],
+["🍉","すいかを きります。"],
+["🏞️","こうえんで あそびます。"],
+["👵","おばあさんに あいます。"],
+["🚆","でんしゃに のります。"],
+["🎂","たんじょうびを いわいます。"],
+["📚","としょかんへ いきます。"]
+];
+const content=document.getElementById('content');
+const cardData=cards.map(([emoji,text])=>({emoji,text,reading:text}));
+const kanjiMap={
+  'ねこ':'猫','いぬ':'犬','くま':'熊','さる':'猿','うし':'牛','うま':'馬','とり':'鳥','うさぎ':'兎','ぶた':'豚','ぞう':'象',
+  'くろい':'黒い','あかい':'赤い','おおきい':'大きい','ちいさい':'小さい','たべます':'食べます','のみます':'飲みます','みます':'見ます',
+  'りんご':'林檎','ばなな':'バナナ','すいか':'西瓜','とまと':'トマト','たまご':'卵','みかん':'蜜柑','もも':'桃','ぶどう':'葡萄','ぱん':'パン',
+  'おにぎり':'おにぎり','くるま':'車','でんしゃ':'電車','ほん':'本','かばん':'鞄','えんぴつ':'鉛筆','はさみ':'鋏','いす':'椅子','かさ':'傘',
+  'とけい':'時計','どあ':'ドア','めがね':'眼鏡','げんかん':'玄関','おんがく':'音楽','しんぶん':'新聞','でんわ':'電話','ごはん':'ご飯',
+  'きつね':'狐','ぺんぎん':'ペンギン','ぱとかー':'パトカー','こうえん':'公園','せんせい':'先生','ふうせん':'風船','にんじん':'人参',
+  'さんどいっち':'サンドイッチ','まんげつ':'満月','がっこう':'学校','りょこう':'旅行','ぎゅうにゅう':'牛乳','ゆうびん':'郵便','えいが':'映画',
+  'えいご':'英語','ゆうがた':'夕方','おはよう':'おはよう','おばあさん':'おばあさん','おじいさん':'おじいさん','たんじょうび':'誕生日',
+  'びょういん':'病院','きょうし':'教師','きょうしつ':'教室','きょう':'今日','とうきょう':'東京','こいのぼり':'こいのぼり','おべんとう':'お弁当',
+  'こうつう':'交通','どうぶつ':'動物','おおうみ':'大海','へいわ':'平和','ろうか':'廊下','きゅうり':'胡瓜','きゅうきゅうしゃ':'救急車','しゅくだい':'宿題',
+  'しゅうかん':'週刊','としょかん':'図書館','しょうがっこう':'小学校','おちゃ':'お茶','あかちゃん':'赤ちゃん','ちゅうか':'中華','ちゅうごく':'中国',
+  'ちょう':'蝶','ちょきん':'貯金','りゅうがく':'留学','りょかん':'旅館','きょうりょく':'協力','きゃっと':'キャット','きゃく':'客','きゅうこう':'急行',
+  'しゃしょう':'写真','しゅうり':'修理','しょうひん':'商品','しょうてん':'商店','りゅうがくせい':'留学生','きょうそう':'競争','きょうだい':'兄弟',
+  'じゅーす':'ジュース','りょうこう':'旅行','きょうえん':'競演','しゅっせきちょう':'出席帳','がぞう':'画像','ざかな':'魚','だいがく':'大学',
+  'ばす':'バス','ぱっく':'パック','じゃがいも':'ジャガイモ','ぴあの':'ピアノ','ぼーる':'ボール','はみがき':'歯磨き','ぼうし':'帽子','ばら':'薔薇',
+  'ざっし':'雑誌','だいどころ':'台所','ぷれぜんと':'プレゼント','ごりら':'ゴリラ','ぬいぐるみ':'ぬいぐるみ','どらむ':'ドラム','てれび':'テレビ',
+  'じてんしゃ':'自転車','はぶらし':'歯ブラシ','てれびきょく':'テレビ局','しんかんせん':'新幹線','きょういくいいんかい':'教育委員会'
+};
+const katakanaCards=cardData.map(({emoji,text,reading})=>({emoji, text:text.replace(/[\u3041-\u3096]/g,ch=>String.fromCharCode(ch.charCodeAt(0)+96)), reading}));
+const kanjiPattern=new RegExp(Object.keys(kanjiMap).sort((a,b)=>b.length-a.length).join('|'),'g');
+const kanjiCards=cardData.map(({emoji,text,reading})=>({emoji, text:text.replace(kanjiPattern, m=>kanjiMap[m]), reading}));
+const multiplicationCards=Array.from({length:9},(_,a)=>Array.from({length:9},(_,b)=>({emoji:'🧮', text:`${a+1} × ${b+1}`, reading:`= ${(a+1)*(b+1)}`, example:`${a+1} × ${b+1} = ${(a+1)*(b+1)}`}))).flat();
+const grade3TopicsCards=[
+  {emoji:'�', text:'Giai đoạn 1: せん・にせん・さんぜん', reading:'Đọc và viết số đến 10.000: 1000 = せん, 2000 = にせん, 3000 = さんぜん', example:'Ví dụ: 4321 = よんせん さんびゃく にじゅう いち'},
+  {emoji:'➕', text:'Giai đoạn 2: せん + にせん = さんぜん', reading:'Cộng số có nhiều chữ số: 1000 + 2000 = 3000', example:'Ví dụ: 2345 + 1234 = 3579 (にせん さんびゃく よんじゅう ご + せん にひゃく さんじゅう よん = さんごななきゅう)'},
+  {emoji:'➖', text:'Giai đoạn 3: ごせん − にせん = さんせん', reading:'Trừ số có nhiều chữ số: 5000 − 2000 = 3000', example:'Ví dụ: 4862 − 1231 = 3631 (よんせん はっぴゃく ろくじゅう に − せん にひゃく さんじゅう いち = さんろくさんいち)'},
+  {emoji:'✖️', text:'Giai đoạn 4: にじゅうさん × 3 = きゅうじゅう', reading:'Nhân số có 2 chữ số với 1 chữ số: 23 × 3 = 69', example:'Ví dụ: 24 × 3 = 72, học cách nhân từng hàng và cộng kết quả'},
+  {emoji:'➗', text:'Giai đoạn 5: 36 ÷ 3 = 12', reading:'Chia hết: 36 chia 3 bằng 12', example:'Ví dụ: 48 ÷ 4 = 12, chia đều thành 4 phần bằng nhau'},
+  {emoji:'🧩', text:'Giai đoạn 6: 1/2 と 1/3', reading:'Giới thiệu phân số cơ bản: 1/2 là một nửa, 1/3 là một phần ba', example:'Ví dụ: 2/4 = 1/2, so sánh 1/2 và 1/3 bằng hình ảnh hoặc băng giấy'},
+  {emoji:'📏', text:'Giai đoạn 7: まる・さんかく・しかく', reading:'Đo lường và hình học: hình tròn, tam giác, hình chữ nhật', example:'Ví dụ: まる = vòng tròn, さんかく = tam giác, しかく = hình vuông/hình chữ nhật'},
+  {emoji:'🧠', text:'Giai đoạn 8: もんだいを かんがえる', reading:'Tư duy toán học: đọc đề, xác định phép tính, giải bài toán có lời văn', example:'Ví dụ: みかんが 12こ あり、3人に 4こずつ わけると いくつ できますか？'}
+];
+const englishAbcCards=[
+  {emoji:'🍎', text:'A', reading:'Apple', example:'A is for Apple.'},
+  {emoji:'🐝', text:'B', reading:'Bee', example:'B is for Bee.'},
+  {emoji:'🐱', text:'C', reading:'Cat', example:'C is for Cat.'},
+  {emoji:'🐶', text:'D', reading:'Dog', example:'D is for Dog.'},
+  {emoji:'🦅', text:'E', reading:'Eagle', example:'E is for Eagle.'},
+  {emoji:'🐸', text:'F', reading:'Frog', example:'F is for Frog.'},
+  {emoji:'🍇', text:'G', reading:'Grapes', example:'G is for Grapes.'},
+  {emoji:'🏠', text:'H', reading:'House', example:'H is for House.'},
+  {emoji:'🍦', text:'I', reading:'Ice cream', example:'I is for Ice cream.'},
+  {emoji:'🥤', text:'J', reading:'Juice', example:'J is for Juice.'},
+  {emoji:'🥝', text:'K', reading:'Kiwi', example:'K is for Kiwi.'},
+  {emoji:'🍋', text:'L', reading:'Lemon', example:'L is for Lemon.'},
+  {emoji:'🙈', text:'M', reading:'Monkey', example:'M is for Monkey.'},
+  {emoji:'🌙', text:'N', reading:'Night', example:'N is for Night.'},
+  {emoji:'👑', text:'Q', reading:'Queen', example:'Q is for Queen.'},
+  {emoji:'🍊', text:'O', reading:'Orange', example:'O is for Orange.'},
+  {emoji:'🐧', text:'P', reading:'Penguin', example:'P is for Penguin.'},
+  {emoji:'🌈', text:'R', reading:'Rainbow', example:'R is for Rainbow.'},
+  {emoji:'🌟', text:'S', reading:'Star', example:'S is for Star.'},
+  {emoji:'🐯', text:'T', reading:'Tiger', example:'T is for Tiger.'},
+  {emoji:'🎻', text:'V', reading:'Violin', example:'V is for Violin.'},
+  {emoji:'🌊', text:'W', reading:'Wave', example:'W is for Wave.'},
+  {emoji:'🦊', text:'X', reading:'foX', example:'X is for foX.'},
+  {emoji:'🍉', text:'Y', reading:'Yellow', example:'Y is for Yellow.'},
+  {emoji:'🦓', text:'Z', reading:'Zebra', example:'Z is for Zebra.'}
+];
+const divisionCards=Array.from({length:10},(_,a)=>Array.from({length:10},(_,b)=>{
+  const dividend=(a+1)*(b+1);
+  return {emoji:'➗', text:`${dividend} ÷ ${b+1}`, reading:`= ${a+1}`, example:`${dividend} ÷ ${b+1} = ${a+1}`};
+})).flat();
+const hiraganaCharCards=hiragana_char.map(([romaji,char])=>({emoji:char, text:romaji, reading:char}));
+const katakanaCharCards=hiragana_char.map(([romaji,char])=>({emoji:char.replace(/[\u3041-\u3096]/g,ch=>String.fromCharCode(ch.charCodeAt(0)+96)), text:romaji, reading:char.replace(/[\u3041-\u3096]/g,ch=>String.fromCharCode(ch.charCodeAt(0)+96))}));
+const grade1KanjiUrl='/data/grade1_kanji_complete.json';
+const grade2KanjiUrl='/data/grade2_kanji_complete.json';
+const grade3KanjiUrl='/data/grade3_kanji_complete.json';
+let grade1KanjiCards=[];
+let grade2KanjiCards=[];
+let grade3KanjiCards=[];
+let currentCards=cardData;
+let slides=document.querySelectorAll('.slide');
+let current=0;
+let randomMode=false;
+let randomOrder=[];
+const memoryState={visible:true};
+let memoryTimer=null;
+const cardVisibility={showAnswer:true, showExample:true};
+const memoryCountInput=document.getElementById('memoryCount');
+async function loadGrade1KanjiData(){
+ if(grade1KanjiCards.length) return grade1KanjiCards;
+ const response=await fetch(grade1KanjiUrl);
+ if(!response.ok) throw new Error('Không thể tải dữ liệu 一年生漢字');
+ const data=await response.json();
+ grade1KanjiCards=data.map(item=>({emoji:item.emoji||'', text:item.kanji||'', reading:item.read||'', example:item.example||'', onyomi:item.onyomi||[], kunyomi:item.kunyomi||[] }));
+ return grade1KanjiCards;
+}
+
+async function loadGrade2KanjiData(){
+ if(grade2KanjiCards.length) return grade2KanjiCards;
+ const response=await fetch(grade2KanjiUrl);
+ if(!response.ok) throw new Error('Không thể tải dữ liệu 二年生漢字');
+ const data=await response.json();
+ grade2KanjiCards=data.map(item=>({emoji:item.emoji||'', text:item.kanji||'', reading:item.read||'', example:item.example||'', onyomi:item.onyomi||[], kunyomi:item.kunyomi||[] }));
+ return grade2KanjiCards;
+}
+
+async function loadGrade3KanjiData(){
+ const response=await fetch(grade3KanjiUrl);
+ if(!response.ok) throw new Error('Không thể tải dữ liệu 三年生漢字');
+ const data=await response.json();
+ grade3KanjiCards=data.map(item=>({emoji:item.emoji||'', text:item.kanji||'', reading:item.read||'', example:item.example||'', onyomi:item.onyomi||[], kunyomi:item.kunyomi||[] }));
+ return grade3KanjiCards;
+}
+
+async function loadGrade1_3KanjiData(name){
+//  if(grade3KanjiCards.length) return grade3KanjiCards;
+ const response=await fetch("/data/" + name + ".json");
+ if(!response.ok) throw new Error('Không thể tải dữ liệu 三年生漢字');
+ const data=await response.json();
+ grade3KanjiCards=data.map(item=>({emoji:item.emoji||'', text:item.kanji||'', reading:item.hiragana||'', example:item.meaning_vi||'', onyomi:item.meaning_vi||[], kunyomi:[] }));
+ return grade3KanjiCards;
+}
+
+async function loadGrade1_3ExampleData(name){
+ const response=await fetch("/data/" + name + ".json");
+ if(!response.ok) throw new Error('Không thể tải dữ liệu 三年生漢字');
+ const data=await response.json();
+ grade3KanjiCards=data.map(item => ({
+  emoji: '🏫',
+  text: item.example_read?.reading ?? '',
+  reading: item.example_read?.hiragana ?? '',
+  example: item.example_read?.vi ?? '',
+  onyomi: [],
+  kunyomi: []
+}));
+console.log("grade3KanjiCards", grade3KanjiCards);
+
+ return grade3KanjiCards;
+}
+
+async function renderCards(set='hiragana', val='kanji_dot2_1_100'){
+ if(set==='grade1Kanji'){
+  try {
+   await loadGrade1KanjiData();
+  } catch (error) {
+   content.innerHTML=`<div class="slide active"><div class="word">${error.message}</div></div>`;
+   return;
+  }
+ }
+
+ if(set==='grade2Kanji'){
+  try {
+   await loadGrade2KanjiData();
+  } catch (error) {
+   content.innerHTML=`<div class="slide active"><div class="word">${error.message}</div></div>`;
+   return;
+  }
+ }
+
+ if(set==='grade3Kanji'){
+  try {
+   await loadGrade3KanjiData();
+  } catch (error) {
+   content.innerHTML=`<div class="slide active"><div class="word">${error.message}</div></div>`;
+   return;
+  }
+ } 
+
+ if(set==='grade1-3Kanji'){
+  try {
+   await loadGrade1_3KanjiData(val);
+  } catch (error) {
+   content.innerHTML=`<div class="slide active"><div class="word">${error.message}</div></div>`;
+   return;
+  }
+}
+
+ if(set==='grade1-3KanjiExample'){
+  try {
+   await loadGrade1_3ExampleData(val);
+  } catch (error) {
+   content.innerHTML=`<div class="slide active"><div class="word">${error.message}</div></div>`;
+   return;
+  }
+}
+console.log("grade3KanjiCards=", grade3KanjiCards);
+ currentCards=(set==='katakana')?katakanaCards:(set==='kanji')?kanjiCards:(set==='englishAbc')?englishAbcCards:(set==='hiraganaChar')?hiraganaCharCards:(set==='katakanaChar')?katakanaCharCards:(set==='grade1Kanji')?grade1KanjiCards:(set==='grade2Kanji')?grade2KanjiCards:(set==='grade3Kanji'  || set==='grade1-3Kanji'|| set==='grade1-3KanjiExample')?grade3KanjiCards:(set==='grade3Topics')?grade3TopicsCards:(set==='multiplication')?multiplicationCards:(set==='division')?divisionCards:cardData;
+ content.innerHTML='';
+ currentCards.forEach(c=>{
+  const d=document.createElement('div');
+  d.className='slide';
+  const emoji=c.emoji||c[0];
+  const word=c.text||c[1];
+  const reading=(set==='grade1-3KanjiExample' ||set==='grade1-3Kanji' || set==='kanji' || set==='kanji' || set==='hiraganaChar' || set==='katakanaChar' || set==='englishAbc' || set==='grade1Kanji' || set==='grade2Kanji' || set==='grade3Kanji' || set==='grade3Topics' || set==='multiplication' || set==='division') && (c.reading||c[2]) ? `<div class="reading" ${cardVisibility.showAnswer ? '' : 'style="display:none;"'}>${c.reading||c[2]}</div>` : '';
+  const onyomi=(set==='grade2Kanji' || set==='grade3Kanji') && (c.onyomi||[]).length ? `<div class="reading" ${cardVisibility.showAnswer ? '' : 'style="display:none;"'}>onyomi: ${(c.onyomi||[]).join(', ')}</div>` : '';
+  const kunyomi=(set==='grade1-3KanjiExample' ||set==='grade1Kanji' || set==='grade2Kanji' || set==='grade3Kanji') && (c.kunyomi||[]).length ? `<div class="reading" ${cardVisibility.showAnswer ? '' : 'style="display:none;"'}>kunyomi: ${(c.kunyomi||[]).join(', ')}</div>` : '';
+  const example=(set==='grade1-3KanjiExample' ||set==='grade1-3Kanji' ||set==='englishAbc' || set==='grade1Kanji' || set==='grade2Kanji' || set==='grade3Kanji' || set==='grade3Topics' || set==='multiplication' || set==='division') && c.example ? `<div class="example" ${cardVisibility.showExample ? '' : 'style="display:none;"'}>${c.example}</div>` : '';
+  d.innerHTML=`<div class="emoji">${emoji}</div><div class="word">${word}</div>${reading}${onyomi}${kunyomi}${example}`;
+  content.appendChild(d);
+ });
+ slides=document.querySelectorAll('.slide');
+ show(0);
+}
+function getDisplayIndex(index){
+ return randomMode ? (randomOrder[index] ?? index) : index;
+}
+function show(i){
+ const maxIndex=randomMode ? randomOrder.length-1 : slides.length-1;
+ const safe=Math.max(0,Math.min(i,maxIndex));
+ const displayIndex=getDisplayIndex(safe);
+ slides.forEach(s=>s.classList.remove('active'));
+ slides[displayIndex].classList.add('active');
+ document.getElementById('counter').innerText=(safe+1)+' / '+(randomMode ? randomOrder.length : slides.length);
+ document.getElementById('bar').style.width=((safe+1)/(randomMode ? randomOrder.length : slides.length)*100)+'%';
+ current=safe;
+}
+function nextPage(){
+ const maxIndex=randomMode ? randomOrder.length-1 : slides.length-1;
+ if(current<maxIndex){current++;show(current);} 
+}
+function prevPage(){
+ if(current>0){current--;show(current);} 
+}
+function toggleRandomMode(){
+ randomMode=!randomMode;
+ if(randomMode){
+  randomOrder=shuffle([...Array(slides.length).keys()]);
+ } else {
+  randomOrder=[];
+ }
+ current=0;
+ show(current);
+}
+function gotoStage(i){
+ const safe=Math.max(0,Math.min(i,slides.length-1));
+ show(safe);
+}
+function setActiveMenuButton(set){
+ document.querySelectorAll('.menuButton').forEach(btn=>btn.classList.remove('active'));
+ const target=document.querySelector(`.menuButton[onclick*="loadCardSet('${set}')"]`);
+ if(target) target.classList.add('active');
+}
+async function loadCardSet(set='hiragana', val=''){
+ setActiveMenuButton(set);
+ await renderCards(set, val);
+}
+function shuffleB(arr){
+  const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+
+function shuffle(arr) {
+  let shuffled;
+  let attempts = 0;
+
+  do {
+    shuffled = [...arr];
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    attempts++;
+  } while (
+    hasAdjacentPair(shuffled, Math.ceil(Math.sqrt(shuffled.length))) &&
+    attempts < 500
+  );
+
+  return shuffled;
+}
+
+function hasAdjacentPair(arr, cols) {
+  for (let i = 0; i < arr.length; i++) {
+
+    // ngang
+    if (
+      (i % cols) !== cols - 1 &&
+      i + 1 < arr.length &&
+      arr[i] === arr[i + 1]
+    ) {
+      return true;
+    }
+
+    // dọc
+    if (
+      i + cols < arr.length &&
+      arr[i] === arr[i + cols]
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
+function randomMemorySlots(count){
+ const slots=[1,2,3,4,5,6];
+ return shuffle(slots).slice(0,Math.min(count,6));
+}
+function getMemoryCount(){
+ const input=document.getElementById('memoryCount');
+ const value=parseInt(input?.value || '5', 10);
+ return Math.min(10, Math.max(4, Number.isFinite(value) ? value : 5));
+}
+function showMemoryMode(){
+ const count=getMemoryCount();
+ const pool=shuffle(currentCards.length?currentCards:cardData).slice(0,count);
+ const slots=randomMemorySlots(pool.length);
+ const board=document.createElement('div');
+ board.className='memoryMode';
+ board.innerHTML=`<div class="memoryControls"><button onclick="startMemoryTimer()">▶️ Start</button><button onclick="hideMemoryItems()">🙈 Ẩn</button><button onclick="showMemoryItems()">👁️ Hiện</button><button onclick="toggleEmojiVisibility()">😀 Ẩn/Hiện emoji</button><button onclick="randomMemoryBoard()">🔁 Random ảnh mới</button><label class="memorySetting">Số ảnh: <input id="memoryCount" type="number" min="2" max="6" value="5" /></label></div><div id="memoryBoard" class="memoryBoard ${memoryState.visible?'':'memoryHidden'}">${pool.map((c,i)=>{
+  const slot=slots[i];
+  const row=Math.floor((slot-1)/3)+1;
+  const col=((slot-1)%3)+1;
+  const emoji=c.emoji||c[0];
+  const word=c.text||c[1];
+  return `<div class="memoryItem" style="grid-column:${col};grid-row:${row};"><div class="memorySlotIndex">${slot}</div><div class="memoryEmoji">${emoji}</div><div class="memoryWord">${word}</div></div>`;
+ }).join('')}</div>`;
+ content.innerHTML='';
+ content.appendChild(board);
+}
+function hideMemoryItems(){
+ memoryState.visible=false;
+ const board=document.getElementById('memoryBoard');
+ if(board) board.classList.add('memoryHidden');
+}
+function startMemoryTimer(){
+ if(memoryTimer) clearTimeout(memoryTimer);
+ showMemoryItems();
+ memoryTimer=setTimeout(()=>{
+  hideMemoryItems();
+ },5000);
+}
+function showMemoryItems(){
+ memoryState.visible=true;
+ const board=document.getElementById('memoryBoard');
+ if(board) board.classList.remove('memoryHidden');
+}
+function toggleEmojiVisibility(){
+ document.body.classList.toggle('emojiHidden');
+}
+function toggleAnswerVisibility(){
+ cardVisibility.showAnswer=!cardVisibility.showAnswer;
+ const cards=document.querySelectorAll('.slide .example');
+ cards.forEach(el=>el.style.display=cardVisibility.showAnswer?'':'none');
+
+  const cards2=document.querySelectorAll('.slide .reading');
+ cards2.forEach(el=>el.style.display=cardVisibility.showAnswer?'':'none');
+}
+function toggleExampleVisibility(){
+ cardVisibility.showExample=!cardVisibility.showExample;
+ const cards=document.querySelectorAll('.slide .example');
+ cards.forEach(el=>el.style.display=cardVisibility.showExample?'':'none');
+}
+function randomMemoryBoard(){
+ memoryState.visible=true;
+ const count=getMemoryCount();
+ const pool=shuffle(currentCards.length?currentCards:cardData).slice(0,count);
+ const slots=randomMemorySlots(pool.length);
+ const board=document.getElementById('memoryBoard');
+ if(!board) return showMemoryMode();
+ board.innerHTML=pool.map((c,i)=>{
+  const slot=slots[i];
+  const row=Math.floor((slot-1)/3)+1;
+  const col=((slot-1)%3)+1;
+  const emoji=c.emoji||c[0];
+  const word=c.text||c[1];
+  return `<div class="memoryItem" style="grid-column:${col};grid-row:${row};"><div class="memorySlotIndex">${slot}</div><div class="memoryEmoji">${emoji}</div><div class="memoryWord">${word}</div></div>`;
+ }).join('');
+}
+function randomCard(){current=Math.floor(Math.random()*slides.length);show(current);}
+function toggleFull(){
+ if(!document.fullscreenElement){document.documentElement.requestFullscreen();}
+ else{document.exitFullscreen();}
+}
+document.addEventListener('keydown',e=>{
+ if(e.key==='ArrowRight')nextPage();
+ if(e.key==='ArrowLeft')prevPage();
+});
+renderCards('hiragana');
+
+/* Memory Matching Game Implementation */
+const memoryLevels = [
+  ['A','A','B','B'],
+  ['A','A','B','B','C','C'],
+  ['A','A','B','B','C','C','D','D'],
+  ['A','A','B','B','C','C','D','D','E','E'],
+  ['A','A','B','B','C','C','D','D','E','E','F','F'],
+  ['A','A','B','B','C','C','D','D','E','E','F','F','G','G'],
+  ['A','A','B','B','C','C','D','D','E','E','F','F','G','G','H','H']
+  ['A','A','B','B','C','C','D','D','E','E','F','F','G','G','H','H','J','J']
+];
+
+
+
+function openMemoryGame(){
+ 
+  setActiveMenuButton('memoryGame');
+  loadMemoryGame();
+}
+
+function loadMemoryGame(){
+  const root = document.createElement('div');
+  root.className='memory-game-root';
+  root.innerHTML = `
+    <div class="game-controls">
+      <div class="game-stats">Score: <span id="mgScore">0</span></div>
+      <div class="game-stats">Moves: <span id="mgMoves">0</span></div>
+      <div class="game-stats">Time: <span id="mgTimer">00:00</span></div>
+      <div class="game-stats">Level: <span id="mgLevel">1</span></div>
+      <div style="margin-left:12px;"><button id="mgRestart" class="btn">Restart</button> <button id="mgBack" class="btn secondary">Back</button></div>
+    </div>
+    <div id="mgBoard" class="board"></div>
+  `;
+  content.innerHTML='';
+  content.appendChild(root);
+  document.getElementById('mgRestart').addEventListener('click', ()=>startLevel(mgState.level));
+  document.getElementById('mgBack').addEventListener('click', ()=>{renderCards('hiragana'); setActiveMenuButton('hiragana'); stopTimer();});
+  startLevel(1);
+}
+
+function startLevel(level){
+  stopTimer();
+  mgState.level=level; mgState.score=0; mgState.moves=0; mgState.time=0; mgState.firstFlip=null; mgState.secondFlip=null; mgState.lock=false; mgState.matches=0; mgState.startTime=null;
+  document.getElementById('mgScore').innerText = mgState.score;
+  document.getElementById('mgMoves').innerText = mgState.moves;
+  document.getElementById('mgTimer').innerText = '00:00';
+  document.getElementById('mgLevel').innerText = mgState.level + "/" + memoryLevels.length;
+  // const emojis = memoryLevels[level-1].slice();
+  // shuffle(emojis);
+
+  const emojis = shuffle(memoryLevels[level - 1]);
+
+  const pairs = emojis.length/2;
+  mgState.totalPairs = pairs;
+  const board = document.getElementById('mgBoard');
+  const cols = Math.min(8, Math.ceil(Math.sqrt(emojis.length)));
+  board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  board.innerHTML = '';
+  emojis.forEach((emoji,i)=>{
+    console.log("aaa=", emoji);
+     const cardImg = englishAbcCards.find(item => item.text === emoji);
+    const card = document.createElement('div'); card.className='card'; card.dataset.index=i; card.dataset.emoji=emoji;
+    const inner = document.createElement('div'); inner.className='cardInner';
+    const back = document.createElement('div'); back.className='cardFace cardBack'; back.innerText='❓';
+    const front = document.createElement('div'); front.className='cardFace cardFront'; front.innerText=cardImg?.emoji;
+    
+    const frontChild = document.createElement('span'); frontChild.className=''; frontChild.innerText=cardImg?.reading;
+    front.appendChild(frontChild);
+    inner.appendChild(back); inner.appendChild(front); card.appendChild(inner);
+    card.addEventListener('click', ()=>onCardClick(card));
+    board.appendChild(card);
+  });
+}
+
+function onCardClick(card){
+  if(mgState.lock) return;
+  if(card.classList.contains('flipped')) return;
+  if(!mgState.startTime){ startTimer(); mgState.startTime=Date.now(); }
+  if(!mgState.firstFlip){
+    card.classList.add('flipped'); mgState.firstFlip=card; return;
+  }
+  if(mgState.firstFlip && !mgState.secondFlip){
+    card.classList.add('flipped'); mgState.secondFlip=card; mgState.lock=true;
+    mgState.moves++; document.getElementById('mgMoves').innerText=mgState.moves;
+    if(mgState.firstFlip.dataset.emoji === mgState.secondFlip.dataset.emoji){
+      mgState.matches++;
+      mgState.score += 10;
+      document.getElementById('mgScore').innerText=mgState.score;
+      mgState.firstFlip=null; mgState.secondFlip=null; mgState.lock=false;
+      if(mgState.matches === mgState.totalPairs) levelComplete();
+    } else {
+      setTimeout(()=>{
+        mgState.firstFlip.classList.remove('flipped');
+        mgState.secondFlip.classList.remove('flipped');
+        mgState.firstFlip=null; mgState.secondFlip=null; mgState.lock=false;
+      },1000);
+    }
+  }
+}
+
+function startTimer(){
+  stopTimer(); mgState.timerId = setInterval(()=>{
+    mgState.time = Math.floor((Date.now() - mgState.startTime)/1000);
+    document.getElementById('mgTimer').innerText = formatTime(mgState.time);
+  },500);
+}
+function stopTimer(){ if(mgState.timerId) clearInterval(mgState.timerId); mgState.timerId=null; }
+function formatTime(s){ const mm = String(Math.floor(s/60)).padStart(2,'0'); const ss = String(s%60).padStart(2,'0'); return `${mm}:${ss}`; }
+
+function levelComplete(){
+  stopTimer();
+  const popup = document.getElementById('memoryPopup');
+  const msg = document.getElementById('popupMsg');
+  msg.innerText = `Level ${mgState.level} Complete — Score: ${mgState.score} — Time: ${formatTime(mgState.time)}`;
+  popup.classList.add('show'); popup.setAttribute('aria-hidden','false');
+  document.getElementById('nextLevelBtn').onclick = ()=>{
+    popup.classList.remove('show'); popup.setAttribute('aria-hidden','true');
+    if(mgState.level < memoryLevels.length) startLevel(mgState.level+1); else finalWin();
+  };
+  document.getElementById('playAgainBtn').onclick = ()=>{ popup.classList.remove('show'); popup.setAttribute('aria-hidden','true'); startLevel(mgState.level); };
+  saveHighscore(mgState.level, mgState.score, mgState.time);
+  if(mgState.level === memoryLevels.length) showConfetti();
+}
+
+function finalWin(){
+  const popup = document.getElementById('memoryPopup');
+  const totalScore = mgState.score;
+  const totalTime = mgState.time;
+  popup.classList.add('show'); popup.setAttribute('aria-hidden','false');
+  document.getElementById('popupMsg').innerText = `You finished all levels! Score: ${totalScore} Time: ${formatTime(totalTime)}`;
+  document.getElementById('nextLevelBtn').innerText='Play Again';
+  document.getElementById('nextLevelBtn').onclick = ()=>{ popup.classList.remove('show'); popup.setAttribute('aria-hidden','true'); startLevel(1); document.getElementById('nextLevelBtn').innerText='Next Level'; };
+  showConfetti();
+}
+
+function saveHighscore(level, score, time){
+  const key = `mg_highscore_level_${level}`;
+  const prev = JSON.parse(localStorage.getItem(key) || 'null');
+  if(!prev || score > prev.score || (score===prev.score && time < prev.time)){
+    localStorage.setItem(key, JSON.stringify({score, time, date:Date.now()}));
+  }
+}
+
+function showConfetti(){
+  const conf = document.getElementById('confetti'); conf.innerHTML=''; conf.style.display='block';
+  for(let i=0;i<30;i++){ const s = document.createElement('span'); s.innerText=['✨','🎉','🎊','🌟'][i%4]; s.style.left=(Math.random()*100)+'%'; s.style.fontSize=(12+Math.random()*36)+'px'; s.style.top='-10%'; s.style.animationDuration=(800+Math.random()*1200)+'ms'; conf.appendChild(s); }
+  setTimeout(()=>{ conf.innerHTML=''; conf.style.display='none'; },2500);
+}
+
+if (window.lucide) {
+  lucide.createIcons();
+}
+
+</script>
+</body></html>

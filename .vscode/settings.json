@@ -1,0 +1,4 @@
+{
+    "chat.utilityModel": "ollama/qwen3-coder:latest",
+    "chat.utilitySmallModel": "ollama/qwen3-coder:latest"
+}

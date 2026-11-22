@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://unpkg.com/compromise"></script>
+<script src="/js/lucide.min.js"></script>
+<title>kanji Flashcards</title>
+
+<style>
+.lucide {
+    width: 20px;
+    height: 20px;
+    vertical-align: -3px;
+    stroke-width: 2;
+}
+.buttons button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 16px;
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.controls {
+    margin-bottom: 15px;
+}
+
+select {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.1);
+    min-height: 340px;
+    touch-action: pan-y;
+}
+
+.emoji {
+    text-align: center;
+    font-size: 80px;
+}
+
+.kanji {
+    text-align: center;
+    font-size: 46px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-top: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.tap-note {
+    text-align: center;
+    color: #999;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.pronunciation {
+    text-align: center;
+    margin-top: 10px;
+    color: #555;
+}
+
+.section {
+    margin-top: 18px;
+}
+
+.label {
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.example {
+    line-height: 1.7;
+    font-size: 35px;
+    cursor: pointer;
+}
+
+.examplP {
+    line-height: 1.7;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.highlight-word {
+    background: #fff3cd;
+    color: #d35400;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+.meaning {
+    color: #27ae60;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+button {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    background: #3498db;
+    color: white;
+}
+
+button:hover {
+    background: #2980b9;
+}
+
+.counter {
+    text-align: center;
+    margin-top: 10px;
+    color: #666;
+    font-size: 14px;
+}
+
+.loading {
+    text-align: center;
+    padding: 30px;
+}
+
+
+.noun {
+    background:#d6eaf8;
+}
+
+.verb {
+    background:#d5f5e3;
+}
+
+.adjective {
+    background:#fdebd0;
+}
+
+.adverb {
+    background:#f5eef8;
+}
+
+.word-tag {
+    display:inline-block;
+    margin:3px;
+    padding:4px 8px;
+    border-radius:6px;
+    font-size:14px;
+    cursor:pointer;
+    user-select:none;
+    transition:all .2s;
+}
+
+.word-tag:hover {
+    transform:scale(1.25);
+}
+
+.word-tag:active {
+    transform:scale(0.95);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1><i data-lucide="book-open"></i> 漢字練習</h1>
+
+    <div class="controls" style="display:flex;gap:10px;align-items:center;">
+        <select id="categorySelect" style="width: 80%;"></select>
+        <button class="menuButton" onclick="openURL('flash-card')">
+            <i data-lucide="layers"></i> flash-card
+        </button>
+    </div>
+
+    <div class="card" id="card">
+
+        <div class="loading" id="loading">
+            Đang tải dữ liệu...
+        </div>
+
+        <div id="content" style="display:none">
+             <button id="speakBtn" style="background-color:transparent;border:none;cursor:pointer;font-size:24px;">
+                <i data-lucide="volume-2" style="width:28px;height:28px;"></i>
+             </button>
+            <div class="emoji" id="emoji"></div>
+
+            <div class="kanji" id="kanji"
+                 title="Bấm để nghe phát âm"></div>
+
+            <div class="pronunciation">
+                <span id="pronunciationUk"></span>
+                <br/>
+                <span id="pronunciationVi"></span>
+            </div>
+            
+            <div class="section" style="border: 1px solid #ccc; padding: 10px;border-radius: 8px;">
+                <div class="label" style="color:grey">
+                   例
+                </div>
+                <div class="example" id="example" style="text-align: center;"></div>
+            </div>
+
+            <div class="section" style="border: 1px solid #ccc; padding: 10px;border-radius: 8px;">
+                <div class="label" style="color:grey;cursor: pointer;" ></div>
+                <div id="englishTranslation" class="kanji"></div>
+                <div id="analysisResult" style="margin-top:10px;text-align: center;"></div>
+                <div class="example" id="exampleJP" style="text-align: center;"></div>
+            </div>
+             <div class="section" style="border: 1px solid #ccc; padding: 10px;border-radius: 8px;">
+                <div class="label" style="color:grey"></div>
+                <div class="kanji" id="meaning"></div>
+            </div>
+
+            <div class="section" style="border: 1px solid #ccc; padding: 10px;border-radius: 8px;text-align: center;">
+                     <div class="label" style="text-align:left" >▶︎ •၊၊||၊|။|||| |</div>
+                  <div id="speechResult" style="margin-top:10px;font-size: 30px;"></div> <div id="speechScore" style=" font-size:24px; font-weight:bold; margin-top:10px; "> </div>
+            </div>
+        </div>
+
+    </div>
+  
+    <div class="buttons">
+        <button onclick="prevWord()"><i data-lucide="chevron-left"></i> 前</button>
+        <button id="recordBtn" style="background-color: orange;"><i data-lucide="mic"></i> 開始</button> 
+        <button onclick="nextWord()">次 <i data-lucide="chevron-right"></i></button>
+    </div>
+    <div class="counter" id="counter" style="visibility: hidden;"></div>
+
+</div>
+
+<script>
+    document
+.getElementById("example")
+.addEventListener("dblclick", analyzeSentence);
+
+document.addEventListener('keydown',e=>{
+ if(e.key==='ArrowRight')nextWord();
+ if(e.key==='ArrowLeft')prevWord();
+});
+
+let recognition; 
+let recording = false;
+let kanjiData = [];
+let speakEnabled = true;
+let filteredWords = [];
+let currentIndex = 0;
+
+document
+.getElementById("speakBtn")
+.addEventListener(
+    "click",
+    toggleSpeak
+);
+
+
+function normalizeWord(text) {
+    return text.toLowerCase().trim().replace(/[^\w\s]/g, '');
+}
+
+function calculateScore(expected, actual) {
+    expected = normalizeWord(expected);
+    actual = normalizeWord(actual);
+    if (expected === actual) {
+        return 100;
+    }
+    let matches = 0;
+    const maxLength = Math.max(expected.length, actual.length);
+    for (let i = 0; i < Math.min(expected.length, actual.length); i++) {
+        if (expected[i] === actual[i]) {
+            matches++;
+        }
+    }
+    return Math.round(matches / maxLength * 100);
+}
+
+function initSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Trình duyệt không hỗ trợ Speech Recognition");
+        return;
+    }
+    recognition = new SpeechRecognition();
+    console.log("recognition~", recognition);
+    recognition.lang = "ja-JP";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (event) => {
+        const spoken = event.results[0][0].transcript;
+        const expected = filteredWords[currentIndex].kanji;
+        const score = calculateScore(expected, spoken);
+        document.getElementById("speechResult").innerHTML = `読んだ: <b>${capitalizeFirst(spoken)}</b>`;
+        document.getElementById("speechScore").innerHTML = `⭐ ${score}/100`;
+        if (score >= 90) {
+            document.getElementById("speechScore").style.color = "green";
+        } else if (score >= 70) {
+            document.getElementById("speechScore").style.color = "orange";
+        } else {
+            document.getElementById("speechScore").style.color = "red";
+        }
+    };
+    recognition.onend = () => {
+        recording = false;
+        document.getElementById("recordBtn").innerHTML = "🎤 開始";
+    };
+}
+
+function startRecording() {
+    if (!recognition) {
+        initSpeechRecognition();
+    }
+    if (recording) {
+        recognition.stop();
+        return;
+    }
+    recording = true;
+    document.getElementById("recordBtn").innerHTML = "⏹ 停止";
+    recognition.start();
+}
+document.getElementById("recordBtn").addEventListener("click", startRecording);
+
+
+  function openURL(val){
+     window.location.href = "/" + val;
+  }
+
+function toggleSpeak() {
+
+    speakEnabled = !speakEnabled;
+
+    const btn =
+        document.getElementById(
+            "speakBtn"
+        );
+
+    if (speakEnabled) {
+
+        btn.innerHTML =
+            "🔊";
+
+        // btn.style.color =
+        //     "green";
+
+    } else {
+
+        btn.innerHTML =
+            "🔇";
+
+        // btn.style.color =
+        //     "red";
+
+        speechSynthesis.cancel();
+    }
+}
+
+const categorySelect =
+    document.getElementById("categorySelect");
+
+    document
+    .getElementById("analysisResult")
+    .addEventListener("click", (e) => {
+
+        const tag =
+            e.target.closest(".word-tag");
+
+        if (!tag) return;
+
+        speak(tag.dataset.word);
+    });
+
+    function analyzeSentence() {
+
+    const word = filteredWords[currentIndex];
+
+    const sentence = word.example_en;
+
+    const doc = nlp(sentence);
+
+    
+    let html = "";
+
+    sentence.split(/\s+/).forEach(token => {
+
+        const term = nlp(token);
+
+        let cls = "";
+        let label = "";
+
+        if (term.has("#Verb")) {
+            cls = "verb";
+            label = "Verb";
+        }
+        else if (term.has("#Noun")) {
+            cls = "noun";
+            label = "Noun";
+        }
+        else if (term.has("#Adjective")) {
+            cls = "adjective";
+            label = "Adj";
+        }
+        else if (term.has("#Adverb")) {
+            cls = "adverb";
+            label = "Adv";
+        }
+
+        const cleanWord =
+        token.replace(/[.,!?;:]/g, '');
+
+        html += `
+            <span
+                class="word-tag ${cls}"
+                data-word="${cleanWord}"
+            >
+                ${token}
+                ${label ? ` (${label})` : ""}
+            </span>
+        `;
+    });
+
+    document.getElementById("analysisResult").innerHTML =
+        html;
+}
+
+async function loadData(category = "kanji_dot2_1_100") {
+
+    try {
+        const response =
+            await fetch(`/data/${category}.json`);
+
+        if (!response.ok) {
+            throw new Error("Không đọc được kanji.json");
+        }
+        currentIndex = 0;
+
+        filteredWords = await response.json();
+
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("content").style.display = "block";
+
+        renderWord();
+
+    } catch (error) {
+
+        document.getElementById("loading").innerHTML =
+            "❌ Không tải được file kanji.json";
+
+        console.error(error);
+    }
+}
+
+function initCategories() {
+
+    const categories =
+        ["jp-hiragana-base","jp-hiragana-dakuten-handakuten","jp-hiragana-yoon","jp-katakana-base","jp-katakana-dakuten-handakuten","jp-katakana-yoon","kanji_dot2_1_100", "kanji_dot2_101_200", "kanji_dot3_201_300", "kanji_dot4_301_400", "kanji_dot5_401_500"];
+   
+
+    categorySelect.innerHTML = "";
+
+    categories.forEach(category => {
+
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category.toUpperCase();
+
+        categorySelect.appendChild(option);
+    });
+
+        // đọc category từ URL
+    let categoryFromHash = decodeURIComponent(
+        location.hash.replace("#", "")
+    );
+
+    let selectedCategory = categories[0];
+
+    if (
+        categoryFromHash &&
+        categories.includes(categoryFromHash)
+    ) {
+        selectedCategory = categoryFromHash;
+    }
+
+    categorySelect.value = selectedCategory;
+
+    loadData(selectedCategory);
+}
+
+function loadCategory(category) {
+
+    filteredWords =
+        kanjiData.filter(
+            x => x.category === category
+        );
+    currentIndex = 0;
+}
+
+function highlightJapanese(sentence, word) {
+
+    if (!sentence || !word) return sentence;
+
+    const escapedWord =
+        word.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            '\\$&'
+        );
+
+    const regex =
+        new RegExp(
+            escapedWord,
+            'g'
+        );
+
+    return sentence.replace(
+        regex,
+        `<span class="highlight-word">$&</span>`
+    );
+}
+
+function highlightWord(sentence, word) {
+
+    if (!sentence || !word) return sentence;
+
+    const escaped =
+        word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    const regex =
+        new RegExp(`\\b(${escaped})\\b`, 'gi');
+
+    return sentence.replace(
+        regex,
+        '<span class="highlight-word">$1</span>'
+    );
+}
+
+function renderWord() {
+    const word = filteredWords[currentIndex];
+
+    document.getElementById("emoji").textContent =
+        word.emoji || "";
+
+    document.getElementById("pronunciationUk").textContent =
+        word.hiragana || "";
+
+    document.getElementById("pronunciationVi").textContent =
+        word.katakana || "";
+
+ 
+    
+    document.getElementById("speechResult").innerHTML = "";
+    document.getElementById("speechScore").innerHTML = "";
+
+    if(categorySelect.value.includes("hiragana") || categorySelect.value.includes("katakana")){
+        document.getElementById("kanji").textContent =word.char;
+        document.getElementById("englishTranslation").textContent = word.kanji;
+        document.getElementById("example").innerHTML =
+        highlightJapanese(
+            "🗣 " + word.example_ja || "",
+            word.char
+        );
+        document.getElementById("meaning").innerHTML =
+         highlightJapanese(
+            "🗣 " + word.example_ja_kanji || "",
+            word.kanji
+        );
+    }else{
+        document.getElementById("kanji").textContent =word.kanji;
+        document.getElementById("example").innerHTML =
+        highlightJapanese(
+            "🗣 " + word.example_ja || "",
+            word.kanji
+        );
+        document.getElementById("englishTranslation").textContent = "🗣 " + word.example_en;
+        analyzeSentence();
+           document.getElementById("meaning").textContent =
+        word.meaning_vi || "";
+    }
+
+    document.getElementById("exampleJP").textContent = "";
+    document.getElementById("counter").textContent =
+        `${currentIndex + 1} / ${filteredWords.length}`;
+
+    if (speakEnabled) {
+        speak(word.example_ja);
+    }
+}
+
+function nextWord() {
+
+    if (!filteredWords.length) return;
+
+    currentIndex++;
+
+    if (currentIndex >= filteredWords.length) {
+        currentIndex = 0;
+    }
+
+    renderWord();
+}
+
+function prevWord() {
+
+    if (!filteredWords.length) return;
+
+    currentIndex--;
+
+    if (currentIndex < 0) {
+        currentIndex = filteredWords.length - 1;
+    }
+
+    renderWord();
+}
+
+async function speak(text, val="ja-JP") {
+    if (!speakEnabled) return;
+    if (!window.speechSynthesis) return;
+
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    // Ưu tiên UK
+    utterance.lang = val;
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+
+    const voices = speechSynthesis.getVoices();
+
+    const ukVoice =
+        voices.find(v =>
+            v.lang === val
+        )
+        ||
+        voices.find(v => v.lang === val);
+
+    if (ukVoice) {
+        utterance.voice = ukVoice;
+    }
+
+    speechSynthesis.speak(utterance);
+}
+
+document
+.getElementById("kanji")
+.addEventListener("click", () => {
+    if (!filteredWords.length) return;
+
+    speak(
+        filteredWords[currentIndex].kanji
+    );
+});
+
+document
+.getElementById("example")
+.addEventListener("click", () => {
+
+    if (!filteredWords.length) return;
+
+    speak(
+        filteredWords[currentIndex].example_ja
+    );
+});
+
+document
+.getElementById("englishTranslation")
+.addEventListener("click", () => {
+
+    if (!filteredWords.length) return;
+
+    speak(
+        filteredWords[currentIndex].example_en, "en-GB"
+    );
+});
+
+
+
+categorySelect.addEventListener(
+    "change",
+    (e) => {
+            const category = e.target.value;
+            location.hash = encodeURIComponent(category);
+            loadData(category);
+        }
+);
+
+/* Swipe support */
+
+const card = document.getElementById("card");
+
+let startX = 0;
+let endX = 0;
+
+card.addEventListener(
+    "touchstart",
+    (e) => {
+        startX =
+            e.changedTouches[0].screenX;
+    },
+    { passive: true }
+);
+
+card.addEventListener(
+    "touchend",
+    (e) => {
+
+        endX =
+            e.changedTouches[0].screenX;
+
+        const distance = endX - startX;
+
+        if (distance > 50) {
+            prevWord();
+        }
+        else if (distance < -50) {
+            nextWord();
+        }
+    },
+    { passive: true }
+);
+
+async function translateToJapanese() {
+
+    if (!filteredWords.length) return;
+
+    const word = filteredWords[currentIndex];
+
+    const text = word.kanji;
+
+    const output =
+        document.getElementById("englishTranslation");
+
+    output.innerHTML = "⏳ Đang dịch...";
+
+    try {
+
+        const response = await fetch(
+            `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ja&dt=t&q=${encodeURIComponent(text)}`
+        );
+
+        const result = await response.json();
+
+        output.innerHTML = result[0][0][0];
+
+    } catch (e) {
+
+        output.innerHTML = "❌ Lỗi dịch";
+        console.error(e);
+    }
+
+    const textExample = word.example;
+
+    const outputExample =
+        document.getElementById("exampleJP");
+
+    try {
+
+        const response = await fetch(
+            `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ja&dt=t&q=${encodeURIComponent(textExample)}`
+        );
+
+        const result = await response.json();
+
+        outputExample.innerHTML = result[0][0][0];
+
+    } catch (e) {
+
+        outputExample.innerHTML = "❌ Lỗi dịch";
+        console.error(e);
+    }
+}
+
+function capitalizeFirst(text) {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+initCategories();
+
+if (window.lucide) {
+    lucide.createIcons();
+}
+</script>
+
+</body>
+</html>
