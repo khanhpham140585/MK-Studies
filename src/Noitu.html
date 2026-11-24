@@ -3,595 +3,294 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f7ff">
     <title>かんじを つなごう！</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 800px;
-            padding: 25px;
-            text-align: center;
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 2.2rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .game-info {
-            display: flex;
-            justify-content: space-between;
-            background-color: #f0f8ff;
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        
-        .score, .level {
-            background-color: #4a90e2;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-        }
-        
-        .kanji-display {
-            font-size: 5rem;
-            margin: 30px 0;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
-        }
-        
-        .emoji-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin: 30px 0;
-        }
-        
-        .emoji-item {
-            background-color: #fff;
-            border-radius: 15px;
-            padding: 20px 10px;
-            font-size: 7rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            aspect-ratio: 1/1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .emoji-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-        }
-        
-        .emoji-item.correct {
-            background-color: #90ee90;
-            animation: pulse 1s infinite;
-        }
-        
-        .emoji-item.incorrect {
-            background-color: #ff6b6b;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .hint-container {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #fff8dc;
-            border-radius: 15px;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .hint-text {
-            font-size: 1.2rem;
-            color: #333;
-        }
-        
-        .hint-button {
-            background-color: #4a90e2;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 15px;
-            transition: all 0.3s ease;
-        }
-        
-        .hint-button:hover {
-            background-color: #357abd;
-            transform: scale(1.05);
-        }
-        
-        .hint-button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .message {
-            font-size: 1.4rem;
-            margin: 20px 0;
-            min-height: 30px;
-            font-weight: bold;
-        }
-        
-        .success {
-            color: #27ae60;
-        }
-        
-        .error {
-            color: #e74c3c;
-        }
-        
-        .progress-container {
-            margin: 20px 0;
-        }
-        
-        .progress-bar {
-            height: 15px;
-            background-color: #ecf0f1;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        .progress {
-            height: 100%;
-            background: linear-gradient(90deg, #4a90e2, #6a11cb);
-            border-radius: 10px;
-            transition: width 0.5s ease;
-        }
-        
-        .achievements {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .achievement {
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            background-color: #f1c40f;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 15px;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .kanji-display {
-                font-size: 3.5rem;
-            }
-            
-            .emoji-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .emoji-item {
-                font-size: 7rem;
-                padding: 15px 5px;
-            }
-        }
+        :root { color-scheme: light; font-family: "Segoe UI", "Noto Sans JP", sans-serif; color: #26324b; background: #f5f7ff; }
+        * { box-sizing: border-box; }
+        body { min-height: 100vh; margin: 0; padding: 24px; background: radial-gradient(circle at top left, #e7f4ff, transparent 38%), #f5f7ff; }
+        button, a { font: inherit; }
+        .container { width: min(100%, 900px); margin: 0 auto; padding: clamp(20px, 4vw, 36px); border: 1px solid #e4e9f5; border-radius: 28px; background: rgba(255,255,255,.94); box-shadow: 0 18px 55px rgba(40,55,100,.12); text-align: center; }
+        .topbar { display: flex; justify-content: flex-start; margin-bottom: 10px; }
+        .back-home-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 15px; border: 1px solid #dce4f4; border-radius: 999px; color: #334568; text-decoration: none; font-weight: 700; background: #fff; }
+        .back-home-btn:hover { background: #f0f5ff; }
+        h1 { margin: 8px 0 22px; font-size: clamp(1.8rem, 5vw, 2.5rem); color: #283653; }
+        .grade-selector { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 0 22px; }
+        .grade-tab { min-height: 58px; padding: 10px 12px; border: 2px solid #e4e9f5; border-radius: 16px; color: #485875; background: #fff; font-weight: 750; cursor: pointer; transition: .2s ease; }
+        .grade-tab:hover { transform: translateY(-2px); border-color: #9bb9f4; }
+        .grade-tab[aria-pressed="true"] { color: #fff; border-color: #557fe3; background: linear-gradient(135deg, #678eea, #8169d8); box-shadow: 0 6px 15px #667eea44; }
+        .game-info { display: flex; justify-content: space-between; gap: 12px; padding: 12px; border-radius: 16px; background: #f1f5ff; font-weight: 750; }
+        .stat { padding: 8px 14px; border-radius: 999px; color: #fff; background: #547fdf; }
+        .kanji-display { min-height: 145px; display: grid; place-items: center; margin: 18px 0; color: #293858; font-size: 6rem; font-weight: 700; text-shadow: 0 5px 12px #202f5014; }
+        .kanji-reading { min-height: 1.6em; margin: -16px 0 18px; color: #73809a; font-size: 1.35rem; font-weight: 650; letter-spacing: .08em; }
+        .hint-container { min-height: 68px; display: grid; place-items: center; padding: 14px; border-radius: 16px; background: #fff8e5; }
+        .hint-text { color: #594a2e; font-size: 1.08rem; line-height: 1.6; overflow-wrap: anywhere; }
+        .hint-button { display: inline-flex; align-items: center; gap: 8px; margin: 12px 0 4px; padding: 11px 20px; border: 0; border-radius: 999px; color: #fff; background: #547fdf; font-weight: 750; cursor: pointer; }
+        .hint-button:hover:not(:disabled) { background: #3e67c4; }
+        .hint-button:disabled { background: #aab3c4; cursor: not-allowed; }
+        .emoji-container { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 22px 0 14px; }
+        .emoji-item { min-width: 0; aspect-ratio: 1; display: grid; place-items: center; border: 2px solid #edf0f6; border-radius: 20px; background: #fff; box-shadow: 0 5px 12px #28365312; font-size: clamp(3rem, 11vw, 6rem); cursor: pointer; transition: transform .18s ease, box-shadow .18s ease, background .18s ease; }
+        .emoji-item:hover:not(:disabled) { transform: translateY(-4px); box-shadow: 0 10px 20px #28365320; }
+        .emoji-item:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #245fd4; outline-offset: 3px; }
+        .emoji-item:disabled { cursor: default; }
+        .emoji-item.correct { border-color: #78d49b; background: #c9f5d8; animation: pulse .8s infinite; }
+        .emoji-item.incorrect { border-color: #f29393; background: #ffd9d9; animation: shake .25s; }
+        @keyframes pulse { 50% { transform: scale(1.04); } }
+        @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+        .message { min-height: 32px; margin: 12px 0; font-size: 1.15rem; font-weight: 750; }
+        .success { color: #16834c; } .error { color: #cc4545; }
+        .progress-container { margin: 16px 0 8px; }
+        .progress-label { margin-bottom: 7px; color: #596781; font-size: .92rem; font-weight: 700; }
+        .progress-bar { height: 14px; overflow: hidden; border-radius: 99px; background: #e9edf5; }
+        .progress { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #547fdf, #9170e2); transition: width .35s ease; }
+        .achievements { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+        .achievement { padding: 7px 12px; border-radius: 99px; color: #fff; background: #e0a92f; font-size: .88rem; font-weight: 700; }
+        .achievement.locked { color: #667085; background: #edf0f5; }
+        .loading { color: #52617e; padding: 26px; }
+        @media (max-width: 680px) { body { padding: 12px; } .container { padding: 18px 14px; border-radius: 22px; } .grade-selector { grid-template-columns: repeat(2, minmax(0,1fr)); } .game-info { font-size: .92rem; } .kanji-display { min-height: 115px; font-size: 4.5rem; } .kanji-reading { margin-top: -10px; font-size: 1.2rem; } .emoji-container { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
     </style>
 </head>
 <body>
-    <div class="container">
+    <main class="container">
+        <div class="topbar"><a class="back-home-btn" href="/" aria-label="メニューに戻る"><i data-lucide="arrow-left" aria-hidden="true"></i> メニューに戻る</a></div>
         <h1>かんじを つなごう！</h1>
-        
-        <div class="game-info">
-            <div class="score">点数: <span id="score">0</span></div>
-            <div class="level">レベル: <span id="level">1</span></div>
+        <nav class="grade-selector" aria-label="学年を選択">
+            <button class="grade-tab" type="button" data-grade="grade1" aria-pressed="false">🌸 lớp 1 (80 từ)</button>
+            <button class="grade-tab" type="button" data-grade="grade2" aria-pressed="false">🌿 lớp 2 (190 từ)</button>
+            <button class="grade-tab" type="button" data-grade="grade3" aria-pressed="false">🍁 lớp 3 (200 từ)</button>
+            <button class="grade-tab" type="button" data-grade="all" aria-pressed="false">🎲 Trộn cả 3 (470 từ)</button>
+        </nav>
+        <div class="game-info" aria-live="polite">
+            <div class="stat"><i data-lucide="trophy" aria-hidden="true"></i> 点数: <span id="score">0</span></div>
+            <div class="stat"><i data-lucide="layers" aria-hidden="true"></i> <span id="gradeLabel">Lớp 1</span> · <span id="questionCount">0 / 80</span></div>
         </div>
-        
-        <div class="kanji-display" id="kanji">犬</div>
-        
-        <div class="hint-container">
-            <div class="hint-text" id="hint">ヒントをクリックして表示</div>
-        </div>
-        
-        <button class="hint-button" id="hintButton">ヒントを見る (3回)</button>
-        
-        <div class="emoji-container" id="emojiContainer">
-            <!-- Emojis will be populated by JavaScript -->
-        </div>
-        
-        <div class="message" id="message"></div>
-        
-        <div class="progress-container">
-            <div class="progress-bar">
-                <div class="progress" id="progress" style="width: 0%"></div>
-            </div>
-        </div>
-        
-        <div class="achievements" id="achievements">
-            <!-- Achievements will be populated by JavaScript -->
-        </div>
-    </div>
-
+        <div class="kanji-display" id="kanji" aria-label="漢字">　</div>
+        <div class="kanji-reading" id="kanjiReading" lang="ja" aria-label="漢字の読み方"></div>
+        <div class="hint-container"><div class="hint-text" id="hint" aria-live="polite">ヒントをクリックして表示</div></div>
+        <button class="hint-button" id="hintButton" type="button"><i data-lucide="lightbulb" aria-hidden="true"></i> ヒントを見る (3回)</button>
+        <div class="emoji-container" id="emojiContainer" aria-label="絵文字を選択" aria-busy="true"><div class="loading">漢字データを読み込んでいます…</div></div>
+        <div class="message" id="message" role="status" aria-live="polite"></div>
+        <div class="progress-container"><div class="progress-label" id="progressLabel">進捗: 0 / 80</div><div class="progress-bar" role="progressbar" aria-label="進捗" aria-valuemin="0" aria-valuemax="80" aria-valuenow="0"><div class="progress" id="progress"></div></div></div>
+        <div class="achievements" id="achievements" aria-label="実績"></div>
+    </main>
+    <script src="/js/lucide.min.js"></script>
     <script>
-        // Kanji data for each level
-        const levels = [
-            {
-                name: "Level 1",
-                kanji: [
-                    { kanji: "犬", emoji: "🐶", hiragana: "いぬ" },
-                    { kanji: "猫", emoji: "🐱", hiragana: "ねこ" },
-                    { kanji: "山", emoji: "⛰️", hiragana: "やま" },
-                    { kanji: "川", emoji: "🌊", hiragana: "かわ" },
-                    { kanji: "木", emoji: "🌳", hiragana: "き" },
-                    { kanji: "口", emoji: "👄", hiragana: "くち" },
-                    { kanji: "目", emoji: "👀", hiragana: "め" },
-                    { kanji: "耳", emoji: "👂", hiragana: "みみ" },
-                    { kanji: "手", emoji: "✋", hiragana: "て" },
-                    { kanji: "足", emoji: "🦶", hiragana: "あし" }
-                ]
-            },
-            {
-                name: "Level 2",
-                kanji: [
-                    { kanji: "人", emoji: "👤", hiragana: "ひと" },
-                    { kanji: "日", emoji: "☀️", hiragana: "ひ" },
-                    { kanji: "月", emoji: "🌙", hiragana: "つき" },
-                    { kanji: "火", emoji: "🔥", hiragana: "ひ" },
-                    { kanji: "水", emoji: "💧", hiragana: "みず" },
-                    { kanji: "木", emoji: "🌲", hiragana: "き" },
-                    { kanji: "金", emoji: "💰", hiragana: "きん" },
-                    { kanji: "土", emoji: "🌍", hiragana: "つち" },
-                    { kanji: "空", emoji: "☁️", hiragana: "そら" },
-                    { kanji: "花", emoji: "🌸", hiragana: "はな" }
-                ]
-            },
-            {
-                name: "Level 3",
-                kanji: [
-                    { kanji: "学", emoji: "📚", hiragana: "がく" },
-                    { kanji: "校", emoji: "🏫", hiragana: "こう" },
-                    { kanji: "生", emoji: "🎓", hiragana: "せい" },
-                    { kanji: "日", emoji: "🌅", hiragana: "にち" },
-                    { kanji: "本", emoji: "📖", hiragana: "ほん" },
-                    { kanji: "中", emoji: "⚖️", hiragana: "ちゅう" },
-                    { kanji: "大", emoji: "🌍", hiragana: "たい" },
-                    { kanji: "小", emoji: "🔻", hiragana: "しょう" },
-                    { kanji: "上", emoji: "⬆️", hiragana: "じょう" },
-                    { kanji: "下", emoji: "⬇️", hiragana: "か" }
-                ]
-            }
-        ];
-
-        // Achievement system
+        const GRADE_FILES = {
+            grade1: { file: '/data/grade1_kanji_complete.json', label: 'Lớp 1', total: 80 },
+            grade2: { file: '/data/grade2_kanji_complete.json', label: 'Lớp 2', total: 190 },
+            grade3: { file: '/data/grade3_kanji_complete.json', label: 'Lớp 3', total: 200 }
+        };
+        const GRADE_STORAGE_KEY = 'noitu_selected_grade';
+        const dataCache = new Map();
         const achievements = [
-            { name: "初心者", points: 100, unlocked: false },
-            { name: "中級者", points: 500, unlocked: false },
-            { name: "上級者", points: 1000, unlocked: false },
-            { name: "達人", points: 2000, unlocked: false }
+            { name: '初心者', points: 100 }, { name: '中級者', points: 500 },
+            { name: '上級者', points: 1000 }, { name: '達人', points: 2000 }
         ];
-
-        // Game state
-        let currentLevel = 0;
+        const elements = {
+            kanji: document.getElementById('kanji'), reading: document.getElementById('kanjiReading'), emojis: document.getElementById('emojiContainer'),
+            hintButton: document.getElementById('hintButton'), hint: document.getElementById('hint'),
+            score: document.getElementById('score'), grade: document.getElementById('gradeLabel'),
+            count: document.getElementById('questionCount'), message: document.getElementById('message'),
+            progress: document.getElementById('progress'), progressLabel: document.getElementById('progressLabel'),
+            progressBar: document.querySelector('[role="progressbar"]'), achievements: document.getElementById('achievements')
+        };
+        let selectedGrade = 'grade1';
+        let kanjiData = [];
         let currentKanjiIndex = 0;
         let score = 0;
         let hintsUsed = 0;
-        let totalHints = 3;
-        let kanjiData = [];
-        let shuffledEmojis = [];
+        let locked = false;
+        let roundToken = 0;
 
-        // DOM elements
-        const kanjiDisplay = document.getElementById('kanji');
-        const emojiContainer = document.getElementById('emojiContainer');
-        const hintButton = document.getElementById('hintButton');
-        const hintDisplay = document.getElementById('hint');
-        const scoreDisplay = document.getElementById('score');
-        const levelDisplay = document.getElementById('level');
-        const messageDisplay = document.getElementById('message');
-        const progressBar = document.getElementById('progress');
-        const achievementsContainer = document.getElementById('achievements');
-
-        // Initialize game
-        function initGame() {
-            loadLevel(currentLevel);
-            updateScore();
-            updateProgress();
-            updateAchievements();
+        function shuffleArray(items) {
+            const shuffled = [...items];
+            for (let index = shuffled.length - 1; index > 0; index--) {
+                const randomIndex = Math.floor(Math.random() * (index + 1));
+                [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+            }
+            return shuffled;
         }
 
-        // Load a level
-        function loadLevel(levelIndex) {
-            if (levelIndex >= levels.length) {
-                messageDisplay.textContent = "ゲームクリア！おめでとうございます！";
-                messageDisplay.className = "message success";
-                return;
+        async function fetchGrade(grade) {
+            if (!dataCache.has(grade)) {
+                const request = fetch(GRADE_FILES[grade].file).then(response => {
+                    if (!response.ok) throw new Error(`Không thể tải dữ liệu lớp ${grade.slice(-1)} (${response.status}).`);
+                    return response.json();
+                }).then(records => {
+                    if (!Array.isArray(records) || records.length === 0) throw new Error(`Dữ liệu lớp ${grade.slice(-1)} không hợp lệ.`);
+                    return records.filter(record => record && typeof record.kanji === 'string' && record.kanji.trim() && typeof record.emoji === 'string' && record.emoji.trim());
+                });
+                dataCache.set(grade, request);
+                request.catch(() => dataCache.delete(grade));
             }
-            
-            currentKanjiIndex = 0;
+            return dataCache.get(grade);
+        }
+
+        async function loadGradeData(grade) {
+            const token = ++roundToken;
+            selectedGrade = grade;
+            document.querySelectorAll('.grade-tab').forEach(tab => tab.setAttribute('aria-pressed', String(tab.dataset.grade === grade)));
+            elements.grade.textContent = grade === 'all' ? 'Trộn cả 3 lớp' : GRADE_FILES[grade].label;
+            elements.message.textContent = '';
+            elements.message.className = 'message';
+            elements.emojis.setAttribute('aria-busy', 'true');
+            elements.emojis.innerHTML = '<div class="loading">漢字データを読み込んでいます…</div>';
+            elements.kanji.textContent = '　';
+            elements.reading.textContent = '';
+            try {
+                const records = grade === 'all'
+                    ? (await Promise.all(Object.keys(GRADE_FILES).map(fetchGrade))).flat()
+                    : await fetchGrade(grade);
+                if (token !== roundToken) return;
+                kanjiData = shuffleArray(records);
+                currentKanjiIndex = 0;
+                localStorage.setItem(GRADE_STORAGE_KEY, grade);
+                renderQuestion();
+            } catch (error) {
+                if (token !== roundToken) return;
+                kanjiData = [];
+                elements.emojis.innerHTML = '';
+                elements.emojis.setAttribute('aria-busy', 'false');
+                elements.message.textContent = `${error.message} Trang cần được mở qua ứng dụng web để tải dữ liệu.`;
+                elements.message.className = 'message error';
+                elements.progress.style.width = '0%';
+                elements.progressLabel.textContent = '進捗: 0';
+                elements.count.textContent = '0';
+            }
+        }
+
+        function resetQuestionState() {
             hintsUsed = 0;
-            hintButton.disabled = false;
-            hintButton.textContent = "ヒントを見る (3回)";
-            hintDisplay.textContent = "ヒントをクリックして表示";
-            messageDisplay.textContent = "";
-            
-            kanjiData = levels[levelIndex].kanji;
-            levelDisplay.textContent = levelIndex + 1;
-            loadKanji();
+            locked = false;
+            elements.hint.textContent = 'ヒントをクリックして表示';
+            elements.hintButton.disabled = false;
+            elements.hintButton.innerHTML = '<i data-lucide="lightbulb" aria-hidden="true"></i> ヒントを見る (3回)';
+            elements.message.textContent = '';
+            elements.message.className = 'message';
         }
 
-        // Load current kanji
-        function loadKanji() {
+        function renderQuestion() {
+            elements.emojis.setAttribute('aria-busy', 'false');
+            if (!kanjiData.length) return;
             if (currentKanjiIndex >= kanjiData.length) {
-                // Move to next level
-                currentLevel++;
-                setTimeout(() => {
-                    loadLevel(currentLevel);
-                }, 1500);
+                elements.kanji.textContent = '🎉';
+                elements.reading.textContent = '';
+                elements.emojis.innerHTML = '';
+                elements.message.textContent = 'ゲームクリア！おめでとうございます！';
+                elements.message.className = 'message success';
+                elements.hintButton.disabled = true;
+                updateProgress();
                 return;
             }
-            
+            resetQuestionState();
             const currentKanji = kanjiData[currentKanjiIndex];
-            kanjiDisplay.textContent = currentKanji.kanji;
-            
-            // Create emojis array with correct answer
-            const emojis = [];
-            emojis.push(currentKanji.emoji);
-            
-            // Add 5 random emojis (excluding the correct one)
-            const allEmojis = levels.flatMap(level => level.kanji.map(k => k.emoji));
-            const uniqueEmojis = [...new Set(allEmojis)];
-            
-            while (emojis.length < 6) {
-                const randomEmoji = uniqueEmojis[Math.floor(Math.random() * uniqueEmojis.length)];
-                if (!emojis.includes(randomEmoji)) {
-                    emojis.push(randomEmoji);
-                }
-            }
-            
-            // Shuffle emojis
-            shuffledEmojis = shuffleArray(emojis);
-            renderEmojis();
-        }
-
-        // Render emojis
-        function renderEmojis() {
-            emojiContainer.innerHTML = '';
-            
-            shuffledEmojis.forEach((emoji, index) => {
-                const emojiElement = document.createElement('div');
-                emojiElement.className = 'emoji-item';
-                emojiElement.textContent = emoji;
-                emojiElement.dataset.index = index;
-                
-                emojiElement.addEventListener('click', () => handleEmojiClick(emoji, index));
-                emojiContainer.appendChild(emojiElement);
+            elements.kanji.textContent = currentKanji.kanji;
+            elements.kanji.setAttribute('aria-label', `漢字 ${currentKanji.kanji}`);
+            elements.reading.textContent = currentKanji.read || '';
+            elements.reading.setAttribute('aria-label', currentKanji.read ? `読み方 ${currentKanji.read}` : '読み方なし');
+            elements.count.textContent = `${currentKanjiIndex + 1} / ${kanjiData.length}`;
+            updateProgress();
+            const correctEmoji = currentKanji.emoji;
+            const pool = [...new Set(kanjiData.map(item => item.emoji).filter(emoji => emoji && emoji !== correctEmoji))];
+            const choices = shuffleArray([correctEmoji, ...shuffleArray(pool).slice(0, 5)]);
+            elements.emojis.innerHTML = '';
+            choices.forEach(emoji => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'emoji-item';
+                button.textContent = emoji;
+                button.setAttribute('aria-label', emoji);
+                button.addEventListener('click', () => handleEmojiClick(emoji, button));
+                elements.emojis.appendChild(button);
             });
+            if (window.lucide) window.lucide.createIcons();
         }
 
-        // Handle emoji click
-        function handleEmojiClick(selectedEmoji, index) {
+        function handleEmojiClick(selectedEmoji, button) {
+            if (locked) return;
             const currentKanji = kanjiData[currentKanjiIndex];
-            
             if (selectedEmoji === currentKanji.emoji) {
-                // Correct answer
-                messageDisplay.textContent = "正解！";
-                messageDisplay.className = "message success";
-                
-                // Add score
-                let points = 10;
-                if (hintsUsed === 0) points += 5; // Bonus for no hints
-                if (hintsUsed === 1) points += 3;
-                if (hintsUsed === 2) points += 1;
-                
+                locked = true;
+                elements.message.textContent = '正解！';
+                elements.message.className = 'message success';
+                const points = 10 + ([5, 3, 1, 0][hintsUsed] || 0);
                 score += points;
-                updateScore();
-                
-                // Highlight correct emoji
-                const emojiElements = document.querySelectorAll('.emoji-item');
-                emojiElements[index].classList.add('correct');
-                
-                // Move to next kanji after delay
-                setTimeout(() => {
+                elements.score.textContent = String(score);
+                button.classList.add('correct');
+                elements.emojis.querySelectorAll('button').forEach(choice => { choice.disabled = true; });
+                updateAchievements();
+                const token = roundToken;
+                window.setTimeout(() => {
+                    if (token !== roundToken) return;
                     currentKanjiIndex++;
-                    loadKanji();
-                }, 1000);
+                    renderQuestion();
+                }, 850);
             } else {
-                // Incorrect answer
-                messageDisplay.textContent = "不正解！もう一度挑戦してください";
-                messageDisplay.className = "message error";
-                
-                // Highlight incorrect emoji
-                const emojiElements = document.querySelectorAll('.emoji-item');
-                emojiElements[index].classList.add('incorrect');
-                
-                // Reset after delay
-                setTimeout(() => {
-                    emojiElements.forEach(el => el.classList.remove('incorrect'));
-                }, 1000);
+                button.classList.add('incorrect');
+                button.disabled = true;
+                elements.message.textContent = '不正解！もう一度挑戦してください';
+                elements.message.className = 'message error';
+                const token = roundToken;
+                window.setTimeout(() => {
+                    if (token !== roundToken) return;
+                    button.classList.remove('incorrect');
+                    if (button.isConnected) button.disabled = false;
+                }, 650);
             }
         }
 
-        // Show hint
         function showHint() {
-            if (hintsUsed >= totalHints) return;
-            
+            if (hintsUsed >= 3 || !kanjiData[currentKanjiIndex]) return;
             const currentKanji = kanjiData[currentKanjiIndex];
-            let hint = "";
-            
-            switch(hintsUsed) {
-                case 0:
-                    hint = `ひらがな: ${currentKanji.hiragana}`;
-                    break;
-                case 1:
-                    hint = `漢字の意味: ${getMeaning(currentKanji.kanji)}`;
-                    break;
-                case 2:
-                    hint = `例文: ${getExample(currentKanji.kanji)}`;
-                    break;
+            const missing = 'データがありません';
+            if (hintsUsed === 0) {
+                elements.hint.textContent = `ひらがな: ${currentKanji.read || missing}`;
+            } else if (hintsUsed === 1) {
+                const meaning = currentKanji.meaning_vi || missing;
+                elements.hint.textContent = `意味: ${meaning}${currentKanji.description ? `（${currentKanji.description}）` : ''}`;
+            } else {
+                const example = currentKanji.example || missing;
+                const reading = currentKanji.example_read ? `（${currentKanji.example_read}）` : '';
+                elements.hint.textContent = `例文: ${example}${reading}`;
             }
-            
-            hintDisplay.textContent = hint;
             hintsUsed++;
-            
-            if (hintsUsed >= totalHints) {
-                hintButton.disabled = true;
-                hintButton.textContent = "ヒントを使いました";
+            if (hintsUsed >= 3) {
+                elements.hintButton.disabled = true;
+                elements.hintButton.innerHTML = '<i data-lucide="lightbulb" aria-hidden="true"></i> ヒントを使いました';
+                if (window.lucide) window.lucide.createIcons();
+            } else {
+                elements.hintButton.innerHTML = `<i data-lucide="lightbulb" aria-hidden="true"></i> ヒントを見る (残り${3 - hintsUsed}回)`;
+                if (window.lucide) window.lucide.createIcons();
             }
-        }
-
-        // Helper functions for hints
-        function getMeaning(kanji) {
-            const meanings = {
-                "犬": "犬",
-                "猫": "猫",
-                "山": "山",
-                "川": "川",
-                "木": "木",
-                "口": "口",
-                "目": "目",
-                "耳": "耳",
-                "手": "手",
-                "足": "足",
-                "人": "人",
-                "日": "日",
-                "月": "月",
-                "火": "火",
-                "水": "水",
-                "金": "金",
-                "土": "土",
-                "空": "空",
-                "花": "花",
-                "学": "学",
-                "校": "校",
-                "生": "生",
-                "本": "本",
-                "中": "中",
-                "大": "大",
-                "小": "小",
-                "上": "上",
-                "下": "下"
-            };
-            return meanings[kanji] || "意味が見つかりません";
-        }
-
-        function getExample(kanji) {
-            const examples = {
-                "犬": "犬が走っている",
-                "猫": "猫が寝ている",
-                "山": "山に登る",
-                "川": "川で泳ぐ",
-                "木": "木を切る",
-                "口": "口を開ける",
-                "目": "目を閉じる",
-                "耳": "耳を澄ませる",
-                "手": "手を振る",
-                "足": "足を洗う",
-                "人": "人を助ける",
-                "日": "日が昇る",
-                "月": "月が見える",
-                "火": "火をつける",
-                "水": "水を飲む",
-                "金": "金を払う",
-                "土": "土に植える",
-                "空": "空を見上げる",
-                "花": "花を摘む",
-                "学": "学ぶ",
-                "校": "学校に行く",
-                "生": "生きる",
-                "本": "本を読む",
-                "中": "中に入る",
-                "大": "大きい",
-                "小": "小さい",
-                "上": "上に上がる",
-                "下": "下に降りる"
-            };
-            return examples[kanji] || "例文がありません";
-        }
-
-        // Utility functions
-        function shuffleArray(array) {
-            const newArray = [...array];
-            for (let i = newArray.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-            }
-            return newArray;
-        }
-
-        function updateScore() {
-            scoreDisplay.textContent = score;
-            updateAchievements();
         }
 
         function updateProgress() {
-            const progress = ((currentKanjiIndex / kanjiData.length) * 100);
-            progressBar.style.width = `${progress}%`;
+            const total = kanjiData.length;
+            const percent = total ? (currentKanjiIndex / total) * 100 : 0;
+            elements.progress.style.width = `${percent}%`;
+            elements.progressLabel.textContent = `進捗: ${currentKanjiIndex} / ${total}`;
+            elements.progressBar.setAttribute('aria-valuemax', String(total));
+            elements.progressBar.setAttribute('aria-valuenow', String(currentKanjiIndex));
         }
 
         function updateAchievements() {
-            achievementsContainer.innerHTML = '';
-            
+            elements.achievements.innerHTML = '';
             achievements.forEach(achievement => {
-                if (score >= achievement.points) {
-                    achievement.unlocked = true;
-                    const achievementElement = document.createElement('div');
-                    achievementElement.textContent = `🔓 ${achievement.name}`;
-                    achievementElement.className = 'achievement unlocked';
-                    achievementsContainer.appendChild(achievementElement);
-                } else {
-                    const achievementElement = document.createElement('div');
-                    achievementElement.textContent = `🔒 ${achievement.name}`;
-                    achievementElement.className = 'achievement locked';
-                    achievementsContainer.appendChild(achievementElement);
-                }
+                const badge = document.createElement('div');
+                const unlocked = score >= achievement.points;
+                badge.className = `achievement${unlocked ? '' : ' locked'}`;
+                badge.textContent = `${unlocked ? '🔓' : '🔒'} ${achievement.name}`;
+                elements.achievements.appendChild(badge);
             });
         }
 
-        // Event listeners
-        hintButton.addEventListener('click', showHint);
-
-        // Start the game
-        initGame();
+        document.querySelectorAll('.grade-tab').forEach(tab => tab.addEventListener('click', () => loadGradeData(tab.dataset.grade)));
+        elements.hintButton.addEventListener('click', showHint);
+        const savedGrade = localStorage.getItem(GRADE_STORAGE_KEY);
+        loadGradeData(savedGrade === 'all' || GRADE_FILES[savedGrade] ? savedGrade : 'grade1');
+        updateAchievements();
+        if (window.lucide) window.lucide.createIcons();
     </script>
 </body>
 </html>

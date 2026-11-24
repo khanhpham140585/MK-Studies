@@ -436,6 +436,149 @@ body.right-collapsed .toggle-tab-right {
     display: flex;
 }
 
+/* Shape Size Settings & Controls */
+.shape-size-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 4px;
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 4px 0;
+    transition: all 0.2s ease;
+}
+
+.shape-size-container.active-tool-shape {
+    background: #e8f4fd;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 1px #1976d2;
+}
+
+.shape-size-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #4a5568;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 2px;
+}
+
+#shapeSizePicker {
+    width: 100%;
+    margin: 2px 0;
+    cursor: pointer;
+}
+
+.shape-presets {
+    display: flex;
+    gap: 2px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.preset-btn {
+    min-width: 18px !important;
+    min-height: 20px !important;
+    width: 18px;
+    height: 20px;
+    padding: 0 !important;
+    font-size: 10px !important;
+    font-weight: bold;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.preset-btn:hover {
+    background: #e2e8f0 !important;
+    color: #1e293b !important;
+}
+
+.preset-btn.active {
+    background: #1976d2 !important;
+    color: #ffffff !important;
+    border-color: #1976d2 !important;
+}
+
+.shape-number-row {
+    display: flex;
+    gap: 3px;
+    width: 100%;
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px dashed #cbd5e1;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.shape-num-toggle-btn {
+    min-width: 0 !important;
+    min-height: 22px !important;
+    height: 22px;
+    flex: 1;
+    padding: 0 4px !important;
+    font-size: 10px !important;
+    font-weight: 600;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    transition: all 0.2s;
+}
+
+.shape-num-toggle-btn .lucide {
+    width: 12px;
+    height: 12px;
+}
+
+.shape-num-toggle-btn:hover {
+    background: #e2e8f0 !important;
+    color: #1e293b !important;
+}
+
+.shape-num-toggle-btn.active {
+    background: #1976d2 !important;
+    color: #ffffff !important;
+    border-color: #1976d2 !important;
+}
+
+.shape-num-reset-btn {
+    min-width: 0 !important;
+    min-height: 22px !important;
+    height: 22px;
+    padding: 0 4px !important;
+    font-size: 10px !important;
+    font-weight: bold;
+    border: 1px solid #93c5fd !important;
+    border-radius: 4px !important;
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.shape-num-reset-btn:hover {
+    background: #dbeafe !important;
+    border-color: #1d4ed8 !important;
+}
+
 /* Thanh điều khiển nổi với nền trong suốt (Glassmorphism) */
 .floating-bar {
     position: fixed;
@@ -741,8 +884,33 @@ body.right-collapsed .toggle-tab-right {
 
     <button id="clearBtn" title="Xóa toàn bộ trang"><i data-lucide="trash-2"></i></button>
 
-<button id="penBtn" title="Bút vẽ"><i data-lucide="pencil"></i></button>
-    <button id="markerBtn" title="Bút dạ quang"><i data-lucide="highlighter"></i></button>
+<button id="penBtn" title="Bút vẽ (Phím P)"><i data-lucide="pencil"></i></button>
+    <button id="markerBtn" title="Bút dạ quang (Phím M)"><i data-lucide="highlighter"></i></button>
+    <button id="lineBtn" title="Vẽ đường thẳng (Kéo A đến B - Phím L)"><i data-lucide="slash"></i></button>
+    <button id="rectBtn" title="Vẽ hình vuông (Chấm điểm - Phím S)"><i data-lucide="square"></i></button>
+    <button id="circleBtn" title="Vẽ hình tròn (Chấm điểm - Phím C)"><i data-lucide="circle"></i></button>
+
+    <div class="shape-size-container" id="shapeSizeBox" title="Cài đặt kích thước & đánh số hình học">
+        <div class="shape-size-label">
+            <span>Size:</span>
+            <span id="shapeSizeValue">60px</span>
+        </div>
+        <input type="range" id="shapeSizePicker" min="15" max="200" value="60" step="5">
+        <div class="shape-presets">
+            <button type="button" class="preset-btn" data-size="35" title="Nhỏ (35px)">S</button>
+            <button type="button" class="preset-btn active" data-size="60" title="Vừa (60px)">M</button>
+            <button type="button" class="preset-btn" data-size="100" title="Lớn (100px)">L</button>
+        </div>
+        <div class="shape-number-row">
+            <button type="button" id="shapeNumberToggleBtn" class="shape-num-toggle-btn" title="Bật/Tắt chế độ đánh số tự tăng (1, 2, 3...)">
+                <i data-lucide="hash"></i>
+                <span id="shapeNumStatus">Số: Tắt</span>
+            </button>
+            <button type="button" id="shapeNumberResetBtn" class="shape-num-reset-btn" title="Đặt lại số bắt đầu về 1" style="display: none;">
+                <span id="nextShapeNumBadge">#1</span> ↺
+            </button>
+        </div>
+    </div>
     <div class="color-palette">
 
     <div class="color-item active"
@@ -898,6 +1066,11 @@ let drawing = false;
 let currentTool = "pen";
 let brushColor = "#ff0000";
 let brushSize = 5;
+let shapeSize = 60;
+let shapeNumberEnabled = false;
+let shapeCounter = 1;
+let lineStartPos = null;
+let canvasSnapshot = null;
 
 const drawings = {};
 
@@ -1117,6 +1290,7 @@ async function openPdfUrl(url){
     pageCount.textContent =
         pdfDoc.numPages;
 
+    resetShapeCounter();
     renderPage(currentPage);
 }
 
@@ -1284,38 +1458,88 @@ function updateBrush(){
             brushSize * 2;
 
             break;
+
+        case "line":
+        case "rect":
+        case "circle":
+
+            drawCtx.globalCompositeOperation =
+            "source-over";
+
+            drawCtx.strokeStyle =
+            brushColor;
+
+            drawCtx.lineWidth =
+            brushSize;
+
+            break;
     }
 }
 
 function updateToolButtons(){
 
+    const lineBtn = document.getElementById("lineBtn");
+    const rectBtn = document.getElementById("rectBtn");
+    const circleBtn = document.getElementById("circleBtn");
+
     [
         penBtn,
         markerBtn,
-        eraserBtn
+        eraserBtn,
+        lineBtn,
+        rectBtn,
+        circleBtn
     ].forEach(btn=>{
-
-        btn.classList.remove(
-            "tool-active"
-        );
+        if (btn) {
+            btn.classList.remove(
+                "tool-active"
+            );
+        }
     });
 
-    if(currentTool==="pen"){
+    if(currentTool==="pen" && penBtn){
         penBtn.classList.add(
             "tool-active"
         );
     }
 
-    if(currentTool==="marker"){
+    if(currentTool==="marker" && markerBtn){
         markerBtn.classList.add(
             "tool-active"
         );
     }
 
-    if(currentTool==="eraser"){
+    if(currentTool==="eraser" && eraserBtn){
         eraserBtn.classList.add(
             "tool-active"
         );
+    }
+
+    if(currentTool==="line" && lineBtn){
+        lineBtn.classList.add(
+            "tool-active"
+        );
+    }
+
+    if(currentTool==="rect" && rectBtn){
+        rectBtn.classList.add(
+            "tool-active"
+        );
+    }
+
+    if(currentTool==="circle" && circleBtn){
+        circleBtn.classList.add(
+            "tool-active"
+        );
+    }
+
+    const shapeBox = document.getElementById("shapeSizeBox");
+    if (shapeBox) {
+        if (currentTool === "rect" || currentTool === "circle") {
+            shapeBox.classList.add("active-tool-shape");
+        } else {
+            shapeBox.classList.remove("active-tool-shape");
+        }
     }
 }
 
@@ -1528,7 +1752,7 @@ prevBtn.onclick = ()=>{
     ) return;
 
     currentPage--;
-
+    resetShapeCounter();
     renderPage(currentPage);
 };
 
@@ -1539,17 +1763,14 @@ nextBtn.onclick = ()=>{
         currentPage>=pdfDoc.numPages
     ) return;
 
-    clearCurrentCanvas();
-
     currentPage++;
-
+    resetShapeCounter();
     renderPage(currentPage);
 };
 
 penBtn.onclick = ()=>{
 
     currentTool = "pen";
-    clearCurrentCanvas();
     updateBrush();
     updateToolButtons();
 };
@@ -1569,6 +1790,96 @@ eraserBtn.onclick = ()=>{
     updateBrush();
     updateToolButtons();
 };
+
+const lineBtn = document.getElementById("lineBtn");
+if (lineBtn) {
+    lineBtn.onclick = ()=>{
+        currentTool = "line";
+        updateBrush();
+        updateToolButtons();
+    };
+}
+
+const rectBtn = document.getElementById("rectBtn");
+if (rectBtn) {
+    rectBtn.onclick = ()=>{
+        currentTool = "rect";
+        updateBrush();
+        updateToolButtons();
+    };
+}
+
+const circleBtn = document.getElementById("circleBtn");
+if (circleBtn) {
+    circleBtn.onclick = ()=>{
+        currentTool = "circle";
+        updateBrush();
+        updateToolButtons();
+    };
+}
+
+const shapeSizePicker = document.getElementById("shapeSizePicker");
+const shapeSizeValue = document.getElementById("shapeSizeValue");
+if (shapeSizePicker) {
+    shapeSizePicker.oninput = (e)=>{
+        shapeSize = parseInt(e.target.value);
+        if (shapeSizeValue) shapeSizeValue.innerText = shapeSize + "px";
+        document.querySelectorAll(".preset-btn").forEach(b => {
+            b.classList.toggle("active", parseInt(b.dataset.size) === shapeSize);
+        });
+    };
+}
+
+document.querySelectorAll(".preset-btn").forEach(btn => {
+    btn.onclick = () => {
+        const val = parseInt(btn.dataset.size);
+        shapeSize = val;
+        if (shapeSizePicker) shapeSizePicker.value = val;
+        if (shapeSizeValue) shapeSizeValue.innerText = val + "px";
+        document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+    };
+});
+
+function updateShapeCounterUI() {
+    const toggleBtn = document.getElementById("shapeNumberToggleBtn");
+    const statusText = document.getElementById("shapeNumStatus");
+    const resetBtn = document.getElementById("shapeNumberResetBtn");
+    const badge = document.getElementById("nextShapeNumBadge");
+
+    if (toggleBtn) {
+        toggleBtn.classList.toggle("active", shapeNumberEnabled);
+    }
+    if (statusText) {
+        statusText.innerText = shapeNumberEnabled ? "Số: Bật" : "Số: Tắt";
+    }
+    if (resetBtn) {
+        resetBtn.style.display = shapeNumberEnabled ? "inline-flex" : "none";
+    }
+    if (badge) {
+        badge.innerText = "#" + shapeCounter;
+    }
+}
+
+function resetShapeCounter() {
+    shapeCounter = 1;
+    updateShapeCounterUI();
+}
+
+const shapeNumberToggleBtn = document.getElementById("shapeNumberToggleBtn");
+if (shapeNumberToggleBtn) {
+    shapeNumberToggleBtn.onclick = () => {
+        shapeNumberEnabled = !shapeNumberEnabled;
+        updateShapeCounterUI();
+    };
+}
+
+const shapeNumberResetBtn = document.getElementById("shapeNumberResetBtn");
+if (shapeNumberResetBtn) {
+    shapeNumberResetBtn.onclick = () => {
+        resetShapeCounter();
+    };
+}
 
 document
 .querySelectorAll(".color-item")
@@ -1653,6 +1964,11 @@ undoBtn.onclick = ()=>{
     history[
         history.length-1
     ];
+
+    if (shapeNumberEnabled && shapeCounter > 1) {
+        shapeCounter--;
+        updateShapeCounterUI();
+    }
 };
 
 redoBtn.onclick = ()=>{
@@ -1677,6 +1993,11 @@ redoBtn.onclick = ()=>{
 
     drawings[currentPage] =
     state;
+
+    if (shapeNumberEnabled) {
+        shapeCounter++;
+        updateShapeCounterUI();
+    }
 };
 
 clearBtn.onclick = clearCurrentCanvas;
@@ -1699,6 +2020,7 @@ function clearCurrentCanvas() {
     ];
 
     pageRedo[currentPage] = [];
+    resetShapeCounter();
 }
 
 function getPos(e){
@@ -1718,6 +2040,40 @@ function getPos(e){
     };
 }
 
+function getTouchPos(e){
+    const touch = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
+    const rect = drawCanvas.getBoundingClientRect();
+    if (!touch) return { x: 0, y: 0 };
+    return {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
+    };
+}
+
+function drawShapePreview(pos, previewNum) {
+    updateBrush();
+    const half = shapeSize / 2;
+    drawCtx.beginPath();
+    if (currentTool === "rect") {
+        drawCtx.strokeRect(pos.x - half, pos.y - half, shapeSize, shapeSize);
+    } else if (currentTool === "circle") {
+        drawCtx.arc(pos.x, pos.y, half, 0, Math.PI * 2);
+        drawCtx.stroke();
+    }
+
+    if (shapeNumberEnabled) {
+        const numToDraw = previewNum !== undefined ? previewNum : shapeCounter;
+        const fontSize = Math.max(10, Math.round(shapeSize * 0.45));
+        drawCtx.save();
+        drawCtx.fillStyle = brushColor;
+        drawCtx.font = `bold ${fontSize}px sans-serif`;
+        drawCtx.textAlign = "center";
+        drawCtx.textBaseline = "middle";
+        drawCtx.fillText(String(numToDraw), pos.x, pos.y);
+        drawCtx.restore();
+    }
+}
+
 drawCanvas.addEventListener(
 "mousedown",
 e=>{
@@ -1729,12 +2085,20 @@ e=>{
     const pos =
     getPos(e);
 
-    drawCtx.beginPath();
+    if (currentTool === "line") {
+        lineStartPos = pos;
+        canvasSnapshot = drawCtx.getImageData(0, 0, drawCanvas.width, drawCanvas.height);
+    } else if (currentTool === "rect" || currentTool === "circle") {
+        canvasSnapshot = drawCtx.getImageData(0, 0, drawCanvas.width, drawCanvas.height);
+        drawShapePreview(pos);
+    } else {
+        drawCtx.beginPath();
 
-    drawCtx.moveTo(
-        pos.x,
-        pos.y
-    );
+        drawCtx.moveTo(
+            pos.x,
+            pos.y
+        );
+    }
 });
 
 drawCanvas.addEventListener(
@@ -1746,12 +2110,26 @@ e=>{
     const pos =
     getPos(e);
 
-    drawCtx.lineTo(
-        pos.x,
-        pos.y
-    );
+    if (currentTool === "line") {
+        if (!canvasSnapshot || !lineStartPos) return;
+        drawCtx.putImageData(canvasSnapshot, 0, 0);
+        updateBrush();
+        drawCtx.beginPath();
+        drawCtx.moveTo(lineStartPos.x, lineStartPos.y);
+        drawCtx.lineTo(pos.x, pos.y);
+        drawCtx.stroke();
+    } else if (currentTool === "rect" || currentTool === "circle") {
+        if (!canvasSnapshot) return;
+        drawCtx.putImageData(canvasSnapshot, 0, 0);
+        drawShapePreview(pos);
+    } else {
+        drawCtx.lineTo(
+            pos.x,
+            pos.y
+        );
 
-    drawCtx.stroke();
+        drawCtx.stroke();
+    }
 });
 
 window.addEventListener(
@@ -1761,6 +2139,17 @@ window.addEventListener(
     if(!drawing) return;
 
     drawing = false;
+
+    if (currentTool === "line") {
+        lineStartPos = null;
+        canvasSnapshot = null;
+    } else if (currentTool === "rect" || currentTool === "circle") {
+        canvasSnapshot = null;
+        if (shapeNumberEnabled) {
+            shapeCounter++;
+            updateShapeCounterUI();
+        }
+    }
 
     saveState();
 
@@ -1778,21 +2167,23 @@ e=>{
 
     drawing = true;
 
-    const touch =
-    e.touches[0];
+    const pos =
+    getTouchPos(e);
 
-    const rect =
-    drawCanvas.getBoundingClientRect();
+    if (currentTool === "line") {
+        lineStartPos = pos;
+        canvasSnapshot = drawCtx.getImageData(0, 0, drawCanvas.width, drawCanvas.height);
+    } else if (currentTool === "rect" || currentTool === "circle") {
+        canvasSnapshot = drawCtx.getImageData(0, 0, drawCanvas.width, drawCanvas.height);
+        drawShapePreview(pos);
+    } else {
+        drawCtx.beginPath();
 
-    drawCtx.beginPath();
-
-    drawCtx.moveTo(
-        touch.clientX -
-        rect.left,
-
-        touch.clientY -
-        rect.top
-    );
+        drawCtx.moveTo(
+            pos.x,
+            pos.y
+        );
+    }
 });
 
 drawCanvas.addEventListener(
@@ -1803,21 +2194,29 @@ e=>{
 
     if(!drawing) return;
 
-    const touch =
-    e.touches[0];
+    const pos =
+    getTouchPos(e);
 
-    const rect =
-    drawCanvas.getBoundingClientRect();
+    if (currentTool === "line") {
+        if (!canvasSnapshot || !lineStartPos) return;
+        drawCtx.putImageData(canvasSnapshot, 0, 0);
+        updateBrush();
+        drawCtx.beginPath();
+        drawCtx.moveTo(lineStartPos.x, lineStartPos.y);
+        drawCtx.lineTo(pos.x, pos.y);
+        drawCtx.stroke();
+    } else if (currentTool === "rect" || currentTool === "circle") {
+        if (!canvasSnapshot) return;
+        drawCtx.putImageData(canvasSnapshot, 0, 0);
+        drawShapePreview(pos);
+    } else {
+        drawCtx.lineTo(
+            pos.x,
+            pos.y
+        );
 
-    drawCtx.lineTo(
-        touch.clientX -
-        rect.left,
-
-        touch.clientY -
-        rect.top
-    );
-
-    drawCtx.stroke();
+        drawCtx.stroke();
+    }
 });
 
 drawCanvas.addEventListener(
@@ -1827,6 +2226,17 @@ drawCanvas.addEventListener(
     if(!drawing) return;
 
     drawing = false;
+
+    if (currentTool === "line") {
+        lineStartPos = null;
+        canvasSnapshot = null;
+    } else if (currentTool === "rect" || currentTool === "circle") {
+        canvasSnapshot = null;
+        if (shapeNumberEnabled) {
+            shapeCounter++;
+            updateShapeCounterUI();
+        }
+    }
 
     saveState();
 
@@ -1875,16 +2285,29 @@ function initToolbarToggles() {
     document.getElementById("closeRightBtn").addEventListener("click", toggleRightToolbar);
     document.getElementById("openRightBtn").addEventListener("click", toggleRightToolbar);
 
-    // Phím tắt '[' và ']'
+    // Phím tắt '[' và ']' cùng phím tắt chọn nhanh công cụ vẽ
     document.addEventListener("keydown", (e) => {
         if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
         if (e.key === "[") toggleLeftToolbar();
         if (e.key === "]") toggleRightToolbar();
+        if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+            const k = e.key.toLowerCase();
+            const lBtn = document.getElementById("lineBtn");
+            const rBtn = document.getElementById("rectBtn");
+            const cBtn = document.getElementById("circleBtn");
+            if (k === "l" && lBtn) lBtn.click();
+            if (k === "s" && rBtn) rBtn.click();
+            if (k === "c" && cBtn) cBtn.click();
+            if (k === "p" && penBtn) penBtn.click();
+            if (k === "m" && markerBtn) markerBtn.click();
+            if (k === "e" && eraserBtn) eraserBtn.click();
+        }
     });
 }
 
 initToolbarToggles();
 updateBrush();
+updateShapeCounterUI();
 
 if (window.lucide) {
     lucide.createIcons();
